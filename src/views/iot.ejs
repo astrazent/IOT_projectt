@@ -1,0 +1,68 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/iot.css">
+    <title>Hệ thống mở khoá thông minh</title>
+</head>
+<body>
+    <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Mở Khóa Thông Minh</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Hệ Thống Mở Khóa Thông Minh</h1>
+        
+        <div class="login-section">
+            <h2>Đăng Nhập</h2>
+            <form id="loginForm">
+                <label for="username">Tên Đăng Nhập:</label>
+                <input type="text" id="username" name="username" required>
+                
+                <label for="password">Mật Khẩu:</label>
+                <input type="password" id="password" name="password" required>
+                
+                <button type="submit">Đăng Nhập</button>
+                <button type="button" onclick="loginWithFingerprint()">Đăng Nhập Bằng Vân Tay</button>
+            </form>
+        </div>
+
+        <div class="fingerprint-section">
+            <h2>Quản Lý Vân Tay</h2>
+            <button onclick="addFingerprint()">Thêm Vân Tay</button>
+            <button onclick="removeFingerprint()">Xóa Vân Tay</button>
+        </div>
+
+        <div class="change-password-section">
+            <h2>Thay Đổi Mật Khẩu</h2>
+            <form id="changePasswordForm">
+                <label for="newPassword">Mật Khẩu Mới:</label>
+                <input type="password" id="newPassword" name="newPassword" required>
+                
+                <button type="submit">Thay Đổi Mật Khẩu</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function loginWithFingerprint() {
+            alert("Đăng nhập bằng vân tay chưa được triển khai.");
+        }
+
+        function addFingerprint() {
+            alert("Chức năng thêm vân tay chưa được triển khai.");
+        }
+
+        function removeFingerprint() {
+            alert("Chức năng xóa vân tay chưa được triển khai.");
+        }
+    </script>
+</body>
+</html>
+</body>
+</html>

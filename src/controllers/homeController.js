@@ -22,7 +22,10 @@ const getUpdatePage = async (req, res) => {
     console.log("request.param: ", req.params); //in ra tham số trong url
     return res.send('ok');
 }
+const getIotHomePage = async (req, res) => {
+    return res.render('iot.ejs');
+}
 
 module.exports = {
-    getHomepage, getABC, getInfo, getCreateUser, getUpdatePage
+    getHomepage, getABC, getInfo, getCreateUser, getUpdatePage, getIotHomePage
 }
