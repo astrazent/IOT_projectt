@@ -1,68 +1,90 @@
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/css/iot.css">
-    <title>Hệ thống mở khoá thông minh</title>
-</head>
-<body>
-    <!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Mở Khóa Thông Minh</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Hệ Thống Mở Khóa Thông Minh</h1>
-        
-        <div class="login-section">
-            <h2>Đăng Nhập</h2>
-            <form id="loginForm">
-                <label for="username">Tên Đăng Nhập:</label>
-                <input type="text" id="username" name="username" required>
-                
-                <label for="password">Mật Khẩu:</label>
-                <input type="password" id="password" name="password" required>
-                
-                <button type="submit">Đăng Nhập</button>
-                <button type="button" onclick="loginWithFingerprint()">Đăng Nhập Bằng Vân Tay</button>
-            </form>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Mở cửa thông minh</title>
+        <link rel="stylesheet" href="/css/iot.css" />
+        <link rel="stylesheet" href="/css/popup_control.css">
+        <link rel="stylesheet" href="/css/notification.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    </head>
+    <body>
+        <!-- Navbar -->
+        <nav class="navbar">
+            <!-- Logo -->
+            <div class="logo">
+                <img src="../images/logo.png" alt="" />
+            </div>
+
+            <!-- Center Navigation Items -->
+            <div class="center-nav">
+                <ul class="nav-items">
+                    <li><a href="#" class="active">Điều khiển</a></li>
+                    <li><a href="#">Cá nhân</a></li>
+                    <li><a href="#">Về chúng tôi</a></li>
+                </ul>
+            </div>
+
+            <!-- Avatar -->
+            <div class="avatar">
+                <img src="../images/avatar.png" alt="Avatar" />
+            </div>
+        </nav>
+        <div class="container">
+            <h3 class="title">Mở cửa thông minh</h3>
+            <div class="box-btn">
+                <button id="buttonA" class="show-message-button btn">Mở cửa</button>
+                <button id="buttonB" class="btn">Thêm vân tay</button>
+                <button id="buttonC" class="show-message-button2 btn">Xoá vân tay</button>
+                <button id="buttonD" class="show-message-button3 btn">Thay đổi mật khẩu</button>
+            </div>
         </div>
 
-        <div class="fingerprint-section">
-            <h2>Quản Lý Vân Tay</h2>
-            <button onclick="addFingerprint()">Thêm Vân Tay</button>
-            <button onclick="removeFingerprint()">Xóa Vân Tay</button>
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <span id="closeModal" class="close">&times;</span>
+                <form id="infoForm">
+                    <label for="firstName">Họ:</label>
+                    <input type="text" id="firstName" required />
+                    <label for="lastName">Tên:</label>
+                    <input type="text" id="lastName" required />
+                    <label for="password">Mật khẩu:</label>
+                    <input type="password" id="password" required />
+                    <button type="submit">Xác nhận</button>
+                </form>
+            </div>
         </div>
 
-        <div class="change-password-section">
-            <h2>Thay Đổi Mật Khẩu</h2>
-            <form id="changePasswordForm">
-                <label for="newPassword">Mật Khẩu Mới:</label>
-                <input type="password" id="newPassword" name="newPassword" required>
-                
-                <button type="submit">Thay Đổi Mật Khẩu</button>
-            </form>
+        <div class="notifications"></div>
+
+        <div class="modal2">
+            <div class="modal-content2">
+                <span class="close2">&times;</span>
+                <p>Đây là thông báo của bạn!</p>
+            </div>
         </div>
-    </div>
 
-    <script>
-        function loginWithFingerprint() {
-            alert("Đăng nhập bằng vân tay chưa được triển khai.");
-        }
+        <div class="modal3">
+            <div class="modal-content3">
+                <span class="close3">&times;</span>
+                <p>Đây là thông báo của bạn!</p>
+            </div>
+        </div>
 
-        function addFingerprint() {
-            alert("Chức năng thêm vân tay chưa được triển khai.");
-        }
+        <div class="modal4">
+            <div class="modal-content4">
+                <span class="close4">&times;</span>
+                <p>Đây là thông báo của bạn!</p>
+            </div>
+        </div>
+        <!-- <div class="buttons">
+            <button id="success">Success</button>
+            <button id="error">Error</button>
+            <button id="warning">Warning</button>
+            <button id="info">Info</button>
+        </div> -->
 
-        function removeFingerprint() {
-            alert("Chức năng xóa vân tay chưa được triển khai.");
-        }
-    </script>
-</body>
-</html>
-</body>
+        <script src="/js/iot.js"></script>
+        <script src="/js/notification.js"></script>
+    </body>
 </html>

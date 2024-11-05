@@ -1,61 +1,129 @@
-/* styles.css */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #5cb85c; /* Đổi màu nền thành xanh */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+/* Reset CSS */
+* {
     margin: 0;
-    padding: 20px;
-    display: flex; /* Sử dụng Flexbox để căn giữa */
-    justify-content: center; /* Căn giữa theo chiều ngang */
-    align-items: center; /* Căn giữa theo chiều dọc */
-    height: 100vh; /* Chiều cao 100% của viewport */
+    padding: 0;
+    box-sizing: border-box;
 }
 
+/* Body styling */
+body {
+    font-family: "Roboto", serif;
+    font-weight: 500;
+    font-style: normal;
+    background-color: #7FC7D9;
+}
+
+/* Navbar styling */
+.navbar {
+    position: fixed; /* Giữ navbar cố định */
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    background-color: #DCF2F1;
+    height: 80px;
+    padding: 0 50px;
+    color: #fff;
+}
+
+/* Logo styling */
+.logo img{
+    width: 80px;
+}
+
+/* Center navigation items */
+.center-nav {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+/* Navigation items styling */
+.nav-items {
+    display: flex;
+    list-style: none;
+    gap: 120px;
+}
+
+.nav-items li a {
+    color: #000000;
+    text-decoration: none;
+    font-size: 25px;
+    transition: color 0.3s;
+}
+
+.nav-items li a:hover {
+    color: #0F67B1;
+}
+
+/* Active item styling */
+.nav-items li a.active {
+    background-color: #007bff; /* Màu nền cho mục active */
+    color: #fff;
+    border-radius: 10px;
+    padding: 10px; /* Tạo khoảng cách 10px giữa viền và nội dung */
+}
+
+/* Avatar styling */
+.avatar img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* CSS hộp chứa */
 .container {
-    max-width: 600px;
-    margin: auto;
-    background: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Căn giữa */
+    margin-top: 60px;         /* Để tránh che khuất bởi navbar */
+    width: 1000px;
+    height: 500px; /* Độ rộng của container */
     padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Đổ bóng cho thẻ form */
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-h1, h2 {
-    color: #333;
+.title{
+    text-align: center;
+    font-size: 30;
 }
 
-form {
-    margin-bottom: 20px;
+/* CSS các nút bấm */
+.box-btn{
+    margin-top: 200px;
+    display: grid;             /* Sử dụng Grid Layout */
+    grid-template-columns: repeat(2, 1fr); /* 2 cột đều nhau */
+    gap: 20px;                /* Khoảng cách giữa các nút */
 }
 
-label {
-    display: block;
-    margin: 10px 0 5px;
-}
-
-input[type="text"],
-input[type="password"] {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
+.btn {
+    margin: 10px 0; /* Khoảng cách giữa các nút */
+    padding: 10px 20px;
+    height: 50px;
+    font-size: 16px;
+    color: white;
+    background-color: #007BFF; /* Màu nền của nút */
+    border: none;
     border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #0056b3; /* Màu khi di chuột qua nút */
 }
 
 button {
-    background-color: #5cb85c;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s; /* Thêm hiệu ứng chuyển động cho nút */
+    padding: 10px 20px;
+    margin: 10px;
+    font-size: 16px;
 }
 
-button:hover {
-    background-color: #4cae4c;
-    transform: translateY(-2px); /* Nâng nút lên khi di chuột vào */
-}
 
-.fingerprint-section, .change-password-section {
-    margin-top: 20px;
-}

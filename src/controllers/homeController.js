@@ -1,5 +1,4 @@
 const connection = require("../config/database");
-const { get } = require("../routes/web");
 
 const getHomepage = async (req, res) => {
     const [results, fields] = await connection.query(`select * from Users`); // dùng `` được phép xuống dòng

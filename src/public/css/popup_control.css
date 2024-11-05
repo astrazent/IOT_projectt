@@ -1,0 +1,138 @@
+/* Thông báo thành công trong 5s */
+.notification {
+    display: none; /* Ẩn thông báo theo mặc định */
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+/* Thông báo mở cửa */
+.modal {
+    display: none; /* Ẩn modal theo mặc định */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5); /* Nền tối */
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 300px;
+    border-radius: 5px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Thông báo thêm vân tay */
+.modal2 {
+    display: none; /* Ẩn modal ban đầu */
+    position: fixed; /* Giữ modal cố định */
+    z-index: 1001; /* Đảm bảo modal nằm trên các phần tử khác */
+    left: 0;
+    top: 0;
+    width: 100%; /* Chiều rộng toàn bộ màn hình */
+    height: 100%; /* Chiều cao toàn bộ màn hình */
+    background-color: rgba(0, 0, 0, 0.7); /* Màu nền tối với độ mờ */
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    align-items: center; /* Căn giữa theo chiều dọc */
+}
+
+.modal-content2 {
+    background-color: white; /* Màu nền của thông báo */
+    padding: 20px;
+    border-radius: 5px;
+    position: relative; /* Để có thể sử dụng absolute cho nút đóng */
+}
+
+.close2 {
+    position: absolute; /* Đặt vị trí nút đóng */
+    top: 10px; /* Cách từ trên xuống */
+    right: 10px; /* Cách từ bên trái */
+    cursor: pointer; /* Thay đổi con trỏ khi hover */
+    font-size: 24px; /* Kích thước chữ cho nút đóng */
+}
+
+/* Thông báo xoá vân tay */
+.modal3 {
+    display: none; /* Ẩn modal ban đầu */
+    position: fixed; /* Giữ modal cố định */
+    z-index: 1001; /* Đảm bảo modal nằm trên các phần tử khác */
+    left: 0;
+    top: 0;
+    width: 100%; /* Chiều rộng toàn bộ màn hình */
+    height: 100%; /* Chiều cao toàn bộ màn hình */
+    background-color: rgba(0, 0, 0, 0.7); /* Màu nền tối với độ mờ */
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    align-items: center; /* Căn giữa theo chiều dọc */
+}
+
+.modal-content3 {
+    background-color: white; /* Màu nền của thông báo */
+    padding: 20px;
+    border-radius: 5px;
+    position: relative; /* Để có thể sử dụng absolute cho nút đóng */
+}
+
+.close3 {
+    position: absolute; /* Đặt vị trí nút đóng */
+    top: 10px; /* Cách từ trên xuống */
+    right: 10px; /* Cách từ bên trái */
+    cursor: pointer; /* Thay đổi con trỏ khi hover */
+    font-size: 24px; /* Kích thước chữ cho nút đóng */
+}
+
+/* Thông báo thay đổi mật khẩu */
+.modal4 {
+    display: none; /* Ẩn modal ban đầu */
+    position: fixed; /* Giữ modal cố định */
+    z-index: 1001; /* Đảm bảo modal nằm trên các phần tử khác */
+    left: 0;
+    top: 0;
+    width: 100%; /* Chiều rộng toàn bộ màn hình */
+    height: 100%; /* Chiều cao toàn bộ màn hình */
+    background-color: rgba(0, 0, 0, 0.7); /* Màu nền tối với độ mờ */
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    align-items: center; /* Căn giữa theo chiều dọc */
+}
+
+.modal-content4 {
+    background-color: white; /* Màu nền của thông báo */
+    padding: 20px;
+    border-radius: 5px;
+    position: relative; /* Để có thể sử dụng absolute cho nút đóng */
+}
+
+.close4 {
+    position: absolute; /* Đặt vị trí nút đóng */
+    top: 10px; /* Cách từ trên xuống */
+    right: 10px; /* Cách từ bên trái */
+    cursor: pointer; /* Thay đổi con trỏ khi hover */
+    font-size: 24px; /* Kích thước chữ cho nút đóng */
+}
