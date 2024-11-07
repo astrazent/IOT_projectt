@@ -90,7 +90,7 @@ body {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.title{
+.container .title{
     text-align: center;
     font-size: 30;
 }
@@ -125,5 +125,16 @@ button {
     margin: 10px;
     font-size: 16px;
 }
+
+#overlay {
+    position: fixed;      /* Giữ lớp phủ ở vị trí cố định khi cuộn trang */
+    top: 0;
+    left: 0;
+    width: 100vw;         /* Chiều rộng toàn màn hình */
+    height: 100vh;        /* Chiều cao toàn màn hình */
+    background-color: rgba(0, 0, 0, 0);  /* Tàng hình với màu nền trong suốt */
+    z-index: 9999;        /* Đảm bảo lớp phủ nằm trên các thành phần khác */
+}
+
 
 

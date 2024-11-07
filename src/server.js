@@ -22,6 +22,9 @@ configviewengine(app);
 // khai báo route
 app.use('/', webRoutes);
 
+//tạo luồng route thứ 2
+app.use('/v2', webRoutes);
+
 // chạy app
 app.listen(port, hostname, () => {
   console.log(`${hostname} app listening on port ${port}`);
