@@ -228,6 +228,20 @@ form select {
     text-align: center;
     overflow-y: auto;
 }
+.delete-container2 {
+    width: 400px;
+    height: auto;
+    background-color: #ffffff;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    overflow-y: auto;
+}
 .modal3 h4 {
     margin-bottom: 20px;
     font-size: 25px;

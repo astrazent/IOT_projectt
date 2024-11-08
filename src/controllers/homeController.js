@@ -52,30 +52,34 @@ const unlockByPassword = async (req, res) => {
     return res.json({"status": "success", "message": "Door unlocked!" })
 }
 const getListFinger = async (req, res) => {
-    console.log("get list finger --> check");
+    const [results, fields] = await connection.query(`SELECT finger, owner, fingerprintID FROM UserInfo;`); // dùng `` được phép xuống dòng
     return res.json({
         "status": "success",
         "message": "Get list fingerprint success!",
-        "data": [
-            {"ID": 1, "Tên ngón": "Ngón cái", "Chủ sở hữu": "Nguyễn Văn A"},
-            {"ID": 2, "Tên ngón": "Ngón trỏ", "Chủ sở hữu": "Trần Thị B"},
-            {"ID": 3, "Tên ngón": "Ngón giữa", "Chủ sở hữu": "Lê Văn C"},
-            {"ID": 4, "Tên ngón": "Ngón áp út", "Chủ sở hữu": "Phạm Văn D"},
-            {"ID": 5, "Tên ngón": "Ngón út", "Chủ sở hữu": "Nguyễn Thị E"}
-        ]
+        "data": results
     });
 }
 const addNewFinger = async (req, res) => {
-    setTimeout(() => {
-        console.log("delay respone 3 second...");
-    }, 3000);
-    return res.json({"status": "success", "message": "Add fingerprint success!" })
+    console.log("delay respone 3 second...");
+    const result = await delayedFunction();
+    return res.json({"status": "success", "message": "Add fingerprint success!", "data": [{"fingerprintID": 1}] })
+}
+const addNewFingerDB = async (req, res) => {
+    const { owner, gender, age, phone, email, finger, fingerprintID } = req.body.userInfo;
+    const [results, fields] = await connection.query(
+        `INSERT INTO UserInfo (owner, gender, age, phone, email, finger, fingerprintID)
+        VALUES (?, ?, ?, ?, ?, ?, ?);`, [owner, gender, age, phone, email, finger, fingerprintID]
+    ); // dùng `` được phép xuống dòng
+    return res.json({"status": "success", "message": "Add fingerprint to DB success!" })
 }
 const deleteFinger = async (req, res) => {
+    return res.json({"status": "success", "message": "Delete fingerprint success!" })
+}
+const deleteFingerDB = async (req, res) => {
     setTimeout(() => {
         console.log("delay respone 3 second...");
     }, 3000);
-    return res.json({"status": "success", "message": "Delete fingerprint success!" })
+    return res.json({"status": "success", "message": "Delete fingerprint on success!" })
 }
 const updatePassword = async (req, res) => {
     setTimeout(() => {
@@ -83,7 +87,13 @@ const updatePassword = async (req, res) => {
     }, 3000);
     return res.json({"status": "success", "message": "Update password success!" })
 }
+const updatePasswordDB = async (req, res) => {
+    setTimeout(() => {
+        console.log("delay respone 3 second...");
+    }, 3000);
+    return res.json({"status": "success", "message": "Update password to DB success!" })
+}
 
 module.exports = {
-    getHomepage, getABC, getInfo, getCreateUser, getUpdatePage, getIotHomePage, unlockByFinger, unlockByPassword, getListFinger, addNewFinger, deleteFinger, updatePassword
+    getHomepage, getABC, getInfo, getCreateUser, getUpdatePage, getIotHomePage, unlockByFinger, unlockByPassword, getListFinger, addNewFinger, addNewFingerDB, deleteFinger, deleteFingerDB, updatePassword, updatePasswordDB
 }

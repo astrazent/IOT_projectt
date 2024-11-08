@@ -129,7 +129,7 @@ modalPass.addEventListener("click", function () {
                 const data = await response.json();
                 //khi request thành công
                 document.querySelector(".modal2").style.display = "none"; // Ẩn modal
-                document.querySelector(".modal-content2").style.display = "block"; // Ẩn modal
+                document.querySelector(".modal-content2").style.display = "block"; 
                 deleteElement("modal2-confirmationContainer");
                 openNoti.style.display = "none";
                 overlay.style.display = "none";
@@ -166,39 +166,50 @@ const showMessageButtons2 = document.querySelectorAll(".show-message-button2");
 const modal2 = document.querySelector(".modal3");
 const closeButton2 = document.querySelector(".close3");
 
-// Hàm để hiển thị dữ liệu json lên bảng HTML
 function populateTable(data) {
     const tableBody = document.getElementById("fingerprintTable").getElementsByTagName("tbody")[0];
     tableBody.innerHTML = ""; // Xóa nội dung cũ (nếu có)
 
-    data.forEach((item) => {
+    // Sắp xếp data theo thứ tự tên owner
+    data.sort((a, b) => a.owner.localeCompare(b.owner));
+
+    data.forEach((item, index) => {
         const row = document.createElement("tr");
 
-        // Tạo các ô cho ID, Tên ngón, và Chủ sở hữu
-        Object.values(item).forEach((value) => {
-            const cell = document.createElement("td");
-            cell.textContent = value;
-            row.appendChild(cell);
-        });
+        // Lưu fingerprintID vào thuộc tính của hàng
+        row.setAttribute("data-fingerprint-id", item.fingerprintID);
+
+        // Tạo ô cho số thứ tự
+        const serialCell = document.createElement("td");
+        serialCell.textContent = index + 1; // Số thứ tự bắt đầu từ 1
+        row.appendChild(serialCell);
+
+        // Tạo ô cho owner (đặt trước) và finger
+        const ownerCell = document.createElement("td");
+        ownerCell.textContent = item.owner;
+        row.appendChild(ownerCell);
+
+        const fingerCell = document.createElement("td");
+        fingerCell.textContent = item.finger;
+        row.appendChild(fingerCell);
 
         tableBody.appendChild(row);
     });
 }
+
 
 // Hiện thông báo khi bấm nút
 showMessageButtons2.forEach((button) => {
     button.addEventListener("click", function () {
         // Đoạn mã JavaScript dùng fetch để gửi yêu cầu POST
         const apiUrl = "http://localhost:8080/api/getListFinger"; // Thay URL này bằng URL của API thực tế
-        const fingerprintId = "valid_id"; // ID vân tay cần gửi
         async function getListFinger() {
             try {
                 const response = await fetch(apiUrl, {
-                    method: "POST",
+                    method: "GET",
                     headers: {
                         "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ fingerprintId: fingerprintId }),
+                    }
                 });
                 if (response.ok) {
                     const data = await response.json();
@@ -352,22 +363,122 @@ document.getElementById("closeModal").addEventListener("click", function () {
     document.getElementById("modal").style.display = "none";
 });
 
+
+const openNoti2 = document.getElementById("modal2-confirmationContainer2");
+
 // Sự kiện xử lý thông tin form
-// document.getElementById('infoForm').addEventListener('submit', function(event) {
-//     event.preventDefault(); // Ngăn không cho form gửi
-//     const firstName = document.getElementById('firstName').value;
-//     const lastName = document.getElementById('lastName').value;
-//     const password = document.getElementById('password').value;
-//     console.log(`Họ: ${firstName}, Tên: ${lastName}, Mật khẩu: ${password}`);
-//     alert('Thông tin đã được gửi');
-//     document.getElementById('modal').style.display = 'none'; // Đóng modal
-// });
+document.getElementById('infoForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Ngăn không cho form gửi đi
+
+    // Lấy giá trị của các trường
+    const owner = document.getElementById('owner').value;
+    const gender = document.getElementById('gender').value;
+    const age = document.getElementById('age').value;
+    const finger = document.getElementById('finger').value;
+    const phone = document.getElementById('phone').value;
+    const email = document.getElementById('email').value;
+
+    // Kiểm tra tính hợp lệ của các trường (nếu cần thêm yêu cầu đặc biệt)
+    if (!owner || !gender || !age || !finger || !phone || !email) {
+        alert('Vui lòng điền đầy đủ thông tin.');
+        return;
+    }
+
+    //Ẩn form
+    document.querySelector(".modal-content").style.display = "none";
+    document.querySelector(".modal2-confirm-title2").innerHTML = "Vui lòng đưa vân tay vào máy quét";
+    document.getElementById("modal2-confirmationContainer2").insertAdjacentHTML("beforeend", '<i class="bi bi-fingerprint"></i>');
+    openNoti2.style.display = "block";
+    overlay.style.display = "block";
+
+    // Đoạn mã JavaScript dùng fetch để gửi yêu cầu POST
+    const apiUrl = "http://localhost:8080/api/arduino/addNewFinger"; // Thay URL này bằng URL của API thực tế
+    async function addNewFinger() {
+        try {
+            const response = await fetch(apiUrl, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (data.status == "success") {
+                    //Thêm vân tay thành công (test)
+                    console.log("thêm vân tay vào arduino thành công!");
+                    
+                    //Lấy id vân tay vừa lưu từ arduino
+                    const fingerprintID = data.data[0].fingerprintID
+                    // Lưu vào database
+                    addNewFingerDB(fingerprintID);
+                } else {
+                    // Thêm vân tay vào arduino thát bại (test)
+                    console.log("thêm vân tay vào arduino thất bại.");
+                }
+            } else {
+                console.error("Request failed:", response.status);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+    addNewFinger();
+
+    async function addNewFingerDB(fingerprintID) {
+        // Đoạn mã JavaScript dùng fetch để gửi yêu cầu POST
+        const apiUrl = "http://localhost:8080/api/addNewFingerDB"; // Thay URL này bằng URL của API thực tế
+        const userInfo = {
+            owner: owner,
+            gender: gender,
+            age: age,
+            phone: phone,
+            email: email,
+            finger: finger,
+            fingerprintID: fingerprintID
+        };
+        try {
+            const response = await fetch(apiUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ userInfo: userInfo }),
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (data.status == "success") {
+                    //Thêm vân tay vào DB thành công (test)
+                    console.log("thêm vân tay vào DB thành công!");
+                } else {
+                    // thêm vân tay vào DB thát bại (test)
+                    console.log("thêm vân tay vào DB thất bại.");
+                }
+            } else {
+                console.error("Request failed:", response.status);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
+    // Reset form để xóa các giá trị hiện tại
+    document.getElementById('infoForm').reset();
+});
+
 
 // Đóng thông báo khi bấm ra ngoài
 const check = document.querySelector(".modal");
 check.addEventListener("click", function (event) {
-    console.log("check");
     if (event.target === check) {
         check.style.display = "none"; // Ẩn modal nếu click ra ngoài
     }
 });
+
+// document.querySelector(".modal-btn").addEventListener("click", function () {
+//     console.log("check");
+//     document.getElementById("modal").style.display = "none";
+//     document.querySelector(".modal2-confirm-title").innerHTML = "Vui lòng đưa vân tay vào máy quét";
+//     document.getElementById("modal2-confirmationContainer").insertAdjacentHTML("beforeend", '<i class="bi bi-fingerprint"></i>');
+//     overlay.style.display = "block";
+//     openNoti.style.display = "block";
+// });
