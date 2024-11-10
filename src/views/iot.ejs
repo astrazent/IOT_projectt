@@ -45,47 +45,61 @@
         <div id="modal" class="modal">
             <div class="modal-content">
                 <span id="closeModal" class="close">&times;</span>
-                <form id = 'infoForm'>
-                    <label for="owner">Chủ sở hữu:</label>
-                    <input type="text" id="owner" name="owner" required />
-
-                    <div class="inline-group">
-                        <div>
-                            <label for="gender">Giới tính:</label>
-                            <select id="gender" name="gender" required>
-                                <option value="">Chọn giới tính</option>
-                                <option value="male">Nam</option>
-                                <option value="female">Nữ</option>
-                                <option value="other">Khác</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label for="age">Tuổi:</label>
-                            <input type="number" id="age" name="age" min="1" required />
-                        </div>
+                <form id="infoForm">
+                    <label for="ownerSelect">Chọn chủ sở hữu:</label>
+                    <select id="ownerSelect" name="ownerSelect" required onchange="toggleOwnerInput()">
+                    </select>
+                
+                    <!-- Input này chỉ hiện ra khi người dùng chọn "Khác" -->
+                    <div id="newOwnerDiv" style="display: none;">
+                        <label for="newOwner">Tên chủ sở hữu mới:</label>
+                        <input type="text" id="newOwner" name="newOwner" />
                     </div>
-
+                    
+                    <label for="hand">Tên bàn tay:</label>
+                    <select id="hand" name="hand" required>
+                        <option value="">Chọn bàn tay</option>
+                        <option value="Tay trái">Tay trái</option>
+                        <option value="Tay phải">Tay phải</option>
+                    </select>
                     <label for="finger">Tên ngón tay:</label>
                     <select id="finger" name="finger" required>
                         <option value="">Chọn ngón tay</option>
-                        <option value="thumb">Ngón cái</option>
-                        <option value="index">Ngón trỏ</option>
-                        <option value="middle">Ngón giữa</option>
-                        <option value="ring">Ngón áp út</option>
-                        <option value="pinky">Ngón út</option>
+                        <option value="Ngón cái">Ngón cái</option>
+                        <option value="Ngón trỏ">Ngón trỏ</option>
+                        <option value="Ngón giữa">Ngón giữa</option>
+                        <option value="Ngón áp út">Ngón áp út</option>
+                        <option value="Ngón út">Ngón út</option>
                     </select>
-
-                    <label for="phone">Số điện thoại:</label>
-                    <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" required />
-
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required />
-
+                    <!-- Phần chứa thông tin cá nhân -->
+                    <div class="information">
+                        <!-- Phần còn lại của form -->
+                        <div class="inline-group">
+                            <div>
+                                <label for="gender">Giới tính:</label>
+                                <select id="gender" name="gender" required>
+                                    <option value="">Chọn giới tính</option>
+                                    <option value="male">Nam</option>
+                                    <option value="female">Nữ</option>
+                                    <option value="other">Khác</option>
+                                </select>
+                            </div>
+                    
+                            <div>
+                                <label for="age">Tuổi:</label>
+                                <input type="number" id="age" name="age" min="1" required />
+                            </div>
+                        </div>
+                        
+                        <label for="phone">Số điện thoại:</label>
+                        <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" required />
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required />
+                    </div>
                     <button class="modal-btn" type="submit">Tiếp tục</button>
                 </form>
             </div>
-
+            
             <div id="modal2-confirmationContainer2" class="delete-container2" style="display: none">
                 <h2 class="modal2-confirm-title2"></h2>
             </div>
@@ -178,15 +192,15 @@
 
                 <!-- Trường nhập mật khẩu cũ -->
                 <label for="oldPassword">Nhập mật khẩu cũ</label>
-                <input type="password" id="oldPassword" placeholder="Mật khẩu cũ" />
+                <input type="password" id="oldPassword" pattern="[0-9]{4} placeholder="Mật khẩu cũ" />
 
                 <!-- Trường nhập mật khẩu mới -->
                 <label for="newPassword">Nhập mật khẩu mới</label>
-                <input type="password" id="newPassword" placeholder="Mật khẩu mới" />
+                <input type="password" id="newPassword" pattern="[0-9]{4} placeholder="Mật khẩu mới" />
 
                 <!-- Trường nhập lại mật khẩu mới -->
                 <label for="confirmPassword">Nhập lại mật khẩu mới</label>
-                <input type="password" id="confirmPassword" placeholder="Nhập lại mật khẩu mới" />
+                <input type="password" id="confirmPassword" pattern="[0-9]{4} placeholder="Nhập lại mật khẩu mới" />
 
                 <!-- Nút xác nhận -->
                 <button id="confirmButton">Xác nhận</button>

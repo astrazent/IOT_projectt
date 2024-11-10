@@ -57,12 +57,52 @@ showMessageButtons.forEach((button) => {
 });
 
 const deleteElement = (id) => {
+    console.log("check");
     let container = document.getElementById(id);
     // Kiểm tra nếu container có phần tử con, sau đó xóa phần tử cuối cùng
     if (container.lastElementChild) {
         container.lastElementChild.remove();
     }
 };
+
+async function unlockHistory(status, type, ownnerID, timestamp, systemID) {
+    // Đoạn mã JavaScript dùng fetch để gửi yêu cầu POST
+    const apiUrl = "http://localhost:8080/api/unlockHistory"; // Thay URL này bằng URL của API thực tế
+    try {
+        let thanhCong;
+        if (status == "success") {
+            thanhCong = true;
+        } else {
+            thanhCong = false;
+        }
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                unlockStatus: thanhCong,
+                unlockType: type,
+                fingerprintID: ownnerID,
+                timestamp: timestamp,
+                systemID: systemID,
+            }),
+        });
+        if (response.ok) {
+            if (data.status == "success") {
+                //Khi lưu vào DB thành công
+                console.log("Lưu lịch sử mở cửa vào DB thành công!");
+            } else {
+                console.log("Lưu lịch sử mở cửa vào DB thất bại.");
+            }
+        } else {
+            console.error("Request failed:", response.status);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+
 //hiển thị thông báo vui lòng nhập
 modalFinger.addEventListener("click", function () {
     document.querySelector(".modal-content2").style.display = "none"; // Ẩn modal
@@ -72,9 +112,7 @@ modalFinger.addEventListener("click", function () {
     openNoti.style.display = "block";
 
     // Đoạn mã JavaScript dùng fetch để gửi yêu cầu POST
-    const apiUrl = "http://localhost:8080/api/unlockByFinger"; // Thay URL này bằng URL của API thực tế
-    const fingerprintId = "valid_id"; // ID vân tay cần gửi
-
+    const apiUrl = "http://localhost:8080/api/arduino/unlockByFinger"; // Thay URL này bằng URL của API thực tế
     async function unlockDoorByFinger() {
         try {
             const response = await fetch(apiUrl, {
@@ -82,7 +120,6 @@ modalFinger.addEventListener("click", function () {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ fingerprintId: fingerprintId }),
             });
             if (response.ok) {
                 const data = await response.json();
@@ -91,6 +128,7 @@ modalFinger.addEventListener("click", function () {
                 deleteElement("modal2-confirmationContainer");
                 openNoti.style.display = "none";
                 overlay.style.display = "none";
+                unlockHistory(data.status, "vân tay", data.data[0].fingerprintID, data.data[0].dateTime, data.data[0].systemID);
                 if (data.status == "success") {
                     //Khi mở cửa thành công
                     success("Đã mở cửa");
@@ -114,8 +152,7 @@ modalPass.addEventListener("click", function () {
     openNoti.style.display = "block";
 
     // Đoạn mã JavaScript dùng fetch để gửi yêu cầu POST
-    const apiUrl = "http://localhost:8080/api/unlockByPassword"; // Thay URL này bằng URL của API thực tế
-    const fingerprintId = "valid_id"; // ID vân tay cần gửi
+    const apiUrl = "http://localhost:8080/api/arduino/unlockByPassword"; // Thay URL này bằng URL của API thực tế
     async function unlockDoorByPass() {
         try {
             const response = await fetch(apiUrl, {
@@ -123,16 +160,16 @@ modalPass.addEventListener("click", function () {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ fingerprintId: fingerprintId }),
             });
             if (response.ok) {
                 const data = await response.json();
                 //khi request thành công
                 document.querySelector(".modal2").style.display = "none"; // Ẩn modal
-                document.querySelector(".modal-content2").style.display = "block"; 
+                document.querySelector(".modal-content2").style.display = "block";
                 deleteElement("modal2-confirmationContainer");
                 openNoti.style.display = "none";
                 overlay.style.display = "none";
+                unlockHistory(data.status, "mật khẩu", data.data[0].fingerprintID, data.data[0].dateTime, data.data[0].systemID);
                 if (data.status == "success") {
                     //Khi mở cửa thành công (test)
                     success("Đã mở cửa");
@@ -197,7 +234,7 @@ function populateTable(data) {
     });
 }
 
-
+let fingerprintID_delete;
 // Hiện thông báo khi bấm nút
 showMessageButtons2.forEach((button) => {
     button.addEventListener("click", function () {
@@ -209,7 +246,7 @@ showMessageButtons2.forEach((button) => {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
-                    }
+                    },
                 });
                 if (response.ok) {
                     const data = await response.json();
@@ -223,6 +260,7 @@ showMessageButtons2.forEach((button) => {
                         const rows = document.querySelectorAll("#fingerprintTable tbody tr");
                         rows.forEach((row) => {
                             row.addEventListener("click", function () {
+                                fingerprintID_delete = row.getAttribute("data-fingerprint-id");
                                 document.querySelector(".modal-content3").style.display = "none";
                                 document.getElementById("confirmationContainer").style.display = "block";
                             });
@@ -280,20 +318,373 @@ document.getElementById("backButton").addEventListener("click", function () {
     document.querySelector(".modal-content3").style.display = "block";
 });
 
+async function deleteFingerDB() {
+    const successNotification = document.getElementById("successNotification");
+    // Đoạn mã JavaScript dùng fetch để gửi yêu cầu POST
+    const apiUrl = "http://localhost:8080/api/deleteFingerDB"; // Thay URL này bằng URL của API thực tế
+    try {
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ fingerprintId: fingerprintID_delete }),
+        });
+        if (response.ok) {
+            const data = await response.json();
+            if (data.status == "success") {
+                //xoá vân tay trong DB thành công (test)
+                console.log("xoá vân tay trong DB thành công!");
+                successNotification.style.backgroundColor = "#007BFF";
+                successNotification.textContent = "Xoá vân tay thành công!";
+                successNotification.style.display = "block";
+                overlay.style.display = "none";
+                // Tự động ẩn thông báo thành công sau 3 giây
+                setTimeout(() => {
+                    successNotification.style.display = "none";
+                }, 3000);
+            } else {
+                // xoá vân tay trong DB  thất bại (test)
+                console.log("xoá vân tay trong DB thất bại.");
+                successNotification.style.backgroundColor = "#CD2C3D";
+                successNotification.textContent = "Xoá vân tay thất bại.";
+                successNotification.style.display = "block";
+                overlay.style.display = "none";
+                // Tự động ẩn thông báo thành công sau 3 giây
+                setTimeout(() => {
+                    successNotification.style.display = "none";
+                }, 3000);
+            }
+        } else {
+            console.error("Request failed:", response.status);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+
 // Xử lý nút "Xác nhận"
 document.getElementById("confirmButton-delete").addEventListener("click", function () {
     document.querySelector(".modal3").style.display = "none";
     document.getElementById("confirmationContainer").style.display = "none";
     document.querySelector(".modal-content3").style.display = "block";
-    console.log(document.querySelector(".modal-content3"));
+    overlay.style.display = "block";
     const successNotification = document.getElementById("successNotification");
-    successNotification.textContent = "Xác nhận thành công!";
-    successNotification.style.display = "block";
 
-    // Tự động ẩn thông báo thành công sau 3 giây
-    setTimeout(() => {
-        successNotification.style.display = "none";
-    }, 3000);
+    // Đoạn mã JavaScript dùng fetch để gửi yêu cầu POST
+    const apiUrl = "http://localhost:8080/api/arduino/deleteFinger"; // Thay URL này bằng URL của API thực tế
+
+    async function deleteFinger() {
+        try {
+            const response = await fetch(apiUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ fingerprintId: fingerprintID_delete }),
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (data.status == "success") {
+                    //xoá vân tay trong arduino thành công (test)
+                    console.log("xoá vân tay trong arduino thành công!");
+                    deleteFingerDB();
+                } else {
+                    //xoá vân tay trong arduino thát bại (test)
+                    console.log("xoá vân tay trong arduino thất bại.");
+                    successNotification.style.backgroundColor = "#CD2C3D";
+                    successNotification.textContent = "Xoá vân tay thất bại.";
+                    successNotification.style.display = "block";
+                    overlay.style.display = "none";
+                    // Tự động ẩn thông báo thành công sau 3 giây
+                    setTimeout(() => {
+                        successNotification.style.display = "none";
+                    }, 3000);
+                }
+            } else {
+                console.error("Request failed:", response.status);
+                //xoá vân tay trong arduino thát bại (test)
+                console.log("xoá vân tay trong arduino thất bại.");
+                successNotification.style.backgroundColor = "#CD2C3D";
+                successNotification.textContent = "Xoá vân tay thất bại.";
+                successNotification.style.display = "block";
+                overlay.style.display = "none";
+                // Tự động ẩn thông báo thành công sau 3 giây
+                setTimeout(() => {
+                    successNotification.style.display = "none";
+                }, 3000);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+    deleteFinger();
+});
+
+// Lấy danh sách chủ sở hữu (cho form thêm vân tay)
+// JavaScript: Fetch data from API and populate the select element
+async function fetchOwners() {
+    try {
+        // Gọi API để lấy danh sách chủ sở hữu
+        const response = await fetch("http://localhost:8080/api/getListOwner"); // Thay /api/owners bằng đường dẫn đến API của bạn
+        const owners = await response.json();
+        const ownerList = owners.data;
+        // Lấy thẻ select
+        const selectElement = document.getElementById("ownerSelect");
+
+        // Xóa các option cũ (nếu cần thiết)
+        selectElement.innerHTML = '<option value="">Chọn chủ sở hữu</option>';
+
+        // Thêm các option mới từ API
+        ownerList.forEach((owner) => {
+            const option = document.createElement("option");
+            option.value = owner.maNguoiDung; // Hoặc thuộc tính đại diện ID của chủ sở hữu
+            option.textContent = owner.chuSoHuu; // Hoặc thuộc tính đại diện tên của chủ sở hữu
+            selectElement.appendChild(option);
+        });
+
+        // Thêm tùy chọn "Khác" để nhập tên mới
+        const otherOption = document.createElement("option");
+        otherOption.value = "other";
+        otherOption.textContent = "Khác";
+        selectElement.appendChild(otherOption);
+    } catch (error) {
+        console.error("Lỗi khi tải danh sách chủ sở hữu:", error);
+    }
+}
+
+// Sự kiện của nút thêm vân tay
+document.getElementById("buttonB").addEventListener("click", function () {
+    document.getElementById("modal").style.display = "block";
+    fetchOwners();
+});
+
+// Sự kiện đóng thông báo
+document.getElementById("closeModal").addEventListener("click", function () {
+    document.getElementById("modal").style.display = "none";
+    onRequire(true);
+});
+
+const openNoti2 = document.getElementById("modal2-confirmationContainer2");
+const onRequire = (status) => {
+    document.getElementById("gender").required = status;
+    document.getElementById("age").required = status;
+    document.getElementById("phone").required = status;
+    document.getElementById("email").required = status;
+    if(status){
+        document.querySelector(".information").style.display = "block";
+    }
+    else{
+        document.querySelector(".information").style.display = "none";
+    }
+}
+//Hiển thị trường nhập chủ sở hữu
+function toggleOwnerInput() {
+    const ownerSelect = document.getElementById("ownerSelect");
+    const newOwnerDiv = document.getElementById("newOwnerDiv");
+    if (ownerSelect.value === "other") {
+        newOwnerDiv.style.display = "block";
+        document.getElementById("newOwner").required = true;
+        onRequire(true);
+    } else {
+        newOwnerDiv.style.display = "none";
+        document.getElementById("newOwner").required = false;
+        onRequire(false);
+    }
+}
+
+// Sự kiện xử lý thông tin form
+document.getElementById("infoForm").addEventListener("submit", function (event) {
+    event.preventDefault(); // Ngăn không cho form gửi đi (nếu gửi đi là không gửi thêm request nào nữa)
+    // Lấy giá trị của các trường
+    const ownerSelect = document.getElementById("ownerSelect").value;
+    const newOwnerInput = document.getElementById("newOwner").value;
+    const gender = document.getElementById("gender").value;
+    const age = document.getElementById("age").value;
+    const hand = document.getElementById("hand").value;
+    const finger = document.getElementById("finger").value;
+    const phone = document.getElementById("phone").value;
+    const email = document.getElementById("email").value;
+
+    // Kiểm tra nếu chủ sở hữu được chọn là "Khác"
+    if (ownerSelect === "other") {
+        // Kiểm tra trường nhập tên chủ sở hữu mới có rỗng hay không
+        if (!newOwnerInput.trim()) {
+            alert("Vui lòng nhập tên chủ sở hữu mới.");
+            return;
+        }
+        // Kiểm tra tính hợp lệ của các trường (nếu cần thêm yêu cầu đặc biệt)
+        if (!gender || !age || !hand || !finger || !phone || !email) {
+            alert("Vui lòng điền đầy đủ thông tin.");
+            return;
+        }
+    } else if (!ownerSelect) {
+        // Kiểm tra xem có chọn chủ sở hữu nào không
+        alert("Vui lòng chọn một chủ sở hữu.");
+        return;
+    }
+    else{
+        // Kiểm tra tính hợp lệ của các trường (nếu cần thêm yêu cầu đặc biệt)
+        if (!hand || !finger) {
+            alert("Vui lòng điền đầy đủ thông tin.");
+            return;
+        }
+    }
+
+    let owner;
+    let ownerStatus;
+    // Kiểm tra nếu chủ sở hữu được chọn là "Khác"
+    if (ownerSelect === "other") {
+        owner = newOwnerInput;
+        ownerStatus = true;
+    } else {
+        owner = ownerSelect;
+        ownerStatus = false;
+    }
+
+    //Ẩn form
+    document.querySelector(".modal-content").style.display = "none";
+    document.querySelector(".modal2-confirm-title2").innerHTML = "Vui lòng đưa vân tay vào máy quét";
+    document.getElementById("modal2-confirmationContainer2").insertAdjacentHTML("beforeend", '<i class="bi bi-fingerprint"></i>');
+    openNoti2.style.display = "block";
+    overlay.style.display = "block";
+
+    // Đoạn mã JavaScript dùng fetch để gửi yêu cầu POST
+    const apiUrl = "http://localhost:8080/api/arduino/addNewFinger"; // Thay URL này bằng URL của API thực tế
+    async function addNewFinger() {
+        const successNotification = document.getElementById("successNotification");
+        try {
+            const response = await fetch(apiUrl, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (data.status == "success") {
+                    //Thêm vân tay thành công (test)
+                    console.log("thêm vân tay vào arduino thành công!");
+                    //Lấy id vân tay vừa lưu từ arduino
+                    const fingerprintID = data.data[0].fingerprintID;
+                    // Lưu vào database
+                    addNewFingerDB(fingerprintID);
+                } else {
+                    // Thêm vân tay vào arduino thất bại (test)
+                    console.log("thêm vân tay vào arduino thất bại.");
+                    document.querySelector(".modal-content").style.display = "block";
+                    openNoti2.style.display = "none";
+                    overlay.style.display = "none";
+                    document.querySelector(".modal").style.display = "none";
+                    onRequire(true);
+                    deleteElement("modal2-confirmationContainer2");
+                    successNotification.textContent = "thêm vân tay vào DB thất bại.";
+                    successNotification.style.display = "block";
+                    // Tự động ẩn thông báo thành công sau 3 giây
+                    setTimeout(() => {
+                        successNotification.style.display = "none";
+                    }, 3000);
+                }
+            } else {
+                console.error("Request failed:", response.status);
+                document.querySelector(".modal-content").style.display = "block";
+                openNoti2.style.display = "none";
+                overlay.style.display = "none";
+                document.querySelector(".modal").style.display = "none";
+                onRequire(true);
+                deleteElement("modal2-confirmationContainer2");
+                successNotification.textContent = "thêm vân tay vào DB thất bại.";
+                successNotification.style.display = "block";
+                // Tự động ẩn thông báo thành công sau 3 giây
+                setTimeout(() => {
+                    successNotification.style.display = "none";
+                }, 3000);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+    addNewFinger();
+
+    async function addNewFingerDB(fingerprintID) {
+        const successNotification = document.getElementById("successNotification");
+        // Đoạn mã JavaScript dùng fetch để gửi yêu cầu POST
+        const apiUrl = "http://localhost:8080/api/addNewFingerDB"; // Thay URL này bằng URL của API thực tế
+        let userInfo;
+        if (ownerStatus) {
+            userInfo = {
+                owner: owner,
+                ownerSelect: ownerSelect,
+                ownerStatus: ownerStatus,
+                gender: gender,
+                age: age,
+                phone: phone,
+                email: email,
+                hand: hand,
+                finger: finger,
+                fingerprintID: fingerprintID,
+            };
+        } else {
+            userInfo = {
+                owner: owner,
+                ownerSelect: ownerSelect,
+                ownerStatus: ownerStatus,
+                hand: hand,
+                finger: finger,
+                fingerprintID: fingerprintID,
+            };
+        }
+        try {
+            const response = await fetch(apiUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ userInfo: userInfo }),
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (data.status == "success") {
+                    //Thêm vân tay vào DB thành công (test)
+                    console.log("thêm vân tay vào DB thành công!");
+                    document.querySelector(".modal-content").style.display = "block";
+                    openNoti2.style.display = "none";
+                    overlay.style.display = "none";
+                    document.querySelector(".modal").style.display = "none";
+                    onRequire(true);
+                    deleteElement("modal2-confirmationContainer2");
+                    successNotification.textContent = "Thêm vân tay thành công!";
+                    successNotification.style.display = "block";
+                    // Tự động ẩn thông báo thành công sau 3 giây
+                    setTimeout(() => {
+                        successNotification.style.display = "none";
+                    }, 3000);
+                } else {
+                    // thêm vân tay vào DB thát bại (test)
+                    console.log("thêm vân tay vào DB thất bại.");
+                    document.querySelector(".modal-content").style.display = "block";
+                    openNoti2.style.display = "none";
+                    overlay.style.display = "none";
+                    document.querySelector(".modal").style.display = "none";
+                    onRequire(true);
+                    deleteElement("modal2-confirmationContainer2");
+                    successNotification.textContent = data.message;
+                    successNotification.style.display = "block";
+                    // Tự động ẩn thông báo thành công sau 3 giây
+                    setTimeout(() => {
+                        successNotification.style.display = "none";
+                    }, 3000);
+                }
+            } else {
+                console.error("Request failed:", response.status);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
+    // Reset form để xóa các giá trị hiện tại
+    document.getElementById("infoForm").reset();
 });
 
 // Thông báo của nút thay đổi mật khẩu
@@ -311,174 +702,80 @@ showMessageButtons3.forEach((button) => {
 // Đóng thông báo khi bấm nút đóng
 closeButton3.addEventListener("click", function () {
     modal3.style.display = "none"; // Ẩn modal
+    console.log("check");
 });
 
 // Đóng thông báo khi bấm ra ngoài modal
-window.addEventListener("click", function (event) {
-    if (event.target === modal3) {
-        modal3.style.display = "none"; // Ẩn modal nếu click ra ngoài
-    }
-});
+// window.addEventListener("click", function (event) {
+//     if (event.target === modal3) {
+//         modal3.style.display = "none"; // Ẩn modal nếu click ra ngoài
+//     }
+// });
 
 //xử lý sự kiện thay đổi mật khẩu
 // Xử lý sự kiện khi nhấn nút "Xác nhận"
 document.getElementById("confirmButton").addEventListener("click", function () {
-    const oldPassword = document.getElementById("oldPassword").value;
-    const newPassword = document.getElementById("newPassword").value;
-    const confirmPassword = document.getElementById("confirmPassword").value;
-
+    const oldPassword = document.getElementById("oldPassword").value.trim();
+    const newPassword = document.getElementById("newPassword").value.trim();
+    const confirmPassword = document.getElementById("confirmPassword").value.trim();
     const notification = document.getElementById("passwordNotification");
-
-    if (newPassword === oldPassword) {
-        notification.textContent = "Mật khẩu mới không được giống mật khẩu cũ!";
+    //Kiểm tra tính hợp lệ
+    if (newPassword === "" || oldPassword === "" || confirmPassword === "") {
+        notification.textContent = "Vui lòng nhập đủ thông tin.";
         notification.style.backgroundColor = "#f44336"; // Đỏ cho thông báo lỗi
+        displayNoti(notification);
     } else if (newPassword.length !== 4 || !/^\d{4}$/.test(newPassword)) {
-        notification.textContent = "Mật khẩu phải là 4 chữ số!";
+        notification.textContent = "Mật khẩu phải là 4 chữ số.";
         notification.style.backgroundColor = "#f44336"; // Đỏ cho thông báo lỗi
+        displayNoti(notification);
     } else if (newPassword !== confirmPassword) {
-        notification.textContent = "Mật khẩu mới không khớp!";
+        notification.textContent = "Mật khẩu nhập lại không khớp.";
         notification.style.backgroundColor = "#f44336"; // Đỏ cho thông báo lỗi
-    } else if (newPassword === confirmPassword && newPassword !== "" && oldPassword !== "") {
-        notification.textContent = "Đổi mật khẩu thành công!";
-        notification.style.backgroundColor = "#4CAF50"; // Xanh lá cho thông báo thành công
+        displayNoti(notification);
+    } else if (newPassword === oldPassword) {
+        notification.textContent = "Mật khẩu mới không được giống mật khẩu cũ.";
+        notification.style.backgroundColor = "#f44336"; // Đỏ cho thông báo lỗi
+        displayNoti(notification);
     } else {
-        notification.textContent = "Vui lòng nhập đủ thông tin!";
-        notification.style.backgroundColor = "#f44336";
+        // Thành công, tiến hành cập nhật mật khẩu
+        updatePassword(oldPassword, newPassword, notification);
     }
-
+});
+const displayNoti = (notification) => {
     // Hiển thị thông báo và tự động ẩn sau 3 giây
     notification.style.display = "block";
     setTimeout(() => {
         notification.style.display = "none";
     }, 3000);
-});
-
-// Sự kiện của nút thêm vân tay
-document.getElementById("buttonB").addEventListener("click", function () {
-    document.getElementById("modal").style.display = "block";
-});
-
-// Sự kiện đóng thông báo
-document.getElementById("closeModal").addEventListener("click", function () {
-    document.getElementById("modal").style.display = "none";
-});
-
-
-const openNoti2 = document.getElementById("modal2-confirmationContainer2");
-
-// Sự kiện xử lý thông tin form
-document.getElementById('infoForm').addEventListener('submit', function(event) {
-    event.preventDefault(); // Ngăn không cho form gửi đi
-
-    // Lấy giá trị của các trường
-    const owner = document.getElementById('owner').value;
-    const gender = document.getElementById('gender').value;
-    const age = document.getElementById('age').value;
-    const finger = document.getElementById('finger').value;
-    const phone = document.getElementById('phone').value;
-    const email = document.getElementById('email').value;
-
-    // Kiểm tra tính hợp lệ của các trường (nếu cần thêm yêu cầu đặc biệt)
-    if (!owner || !gender || !age || !finger || !phone || !email) {
-        alert('Vui lòng điền đầy đủ thông tin.');
-        return;
-    }
-
-    //Ẩn form
-    document.querySelector(".modal-content").style.display = "none";
-    document.querySelector(".modal2-confirm-title2").innerHTML = "Vui lòng đưa vân tay vào máy quét";
-    document.getElementById("modal2-confirmationContainer2").insertAdjacentHTML("beforeend", '<i class="bi bi-fingerprint"></i>');
-    openNoti2.style.display = "block";
-    overlay.style.display = "block";
-
-    // Đoạn mã JavaScript dùng fetch để gửi yêu cầu POST
-    const apiUrl = "http://localhost:8080/api/arduino/addNewFinger"; // Thay URL này bằng URL của API thực tế
-    async function addNewFinger() {
-        try {
-            const response = await fetch(apiUrl, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                if (data.status == "success") {
-                    //Thêm vân tay thành công (test)
-                    console.log("thêm vân tay vào arduino thành công!");
-                    
-                    //Lấy id vân tay vừa lưu từ arduino
-                    const fingerprintID = data.data[0].fingerprintID
-                    // Lưu vào database
-                    addNewFingerDB(fingerprintID);
-                } else {
-                    // Thêm vân tay vào arduino thát bại (test)
-                    console.log("thêm vân tay vào arduino thất bại.");
-                }
-            } else {
-                console.error("Request failed:", response.status);
-            }
-        } catch (error) {
-            console.error("Error:", error);
+};
+async function updatePassword(oldPassword, newPassword, notification) {
+    try {
+        // Gửi dữ liệu lên API
+        const response = await fetch("http://localhost:8080/api/arduino/updatePassword", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                oldPassword: oldPassword,
+                newPassword: newPassword,
+            }),
+        });
+        const data = await response.json();
+        // Xử lý phản hồi từ API
+        if (data.status) {
+            notification.textContent = "Đổi mật khẩu thành công!";
+            notification.style.backgroundColor = "#4CAF50"; // Xanh lá cho thông báo thành công
+            displayNoti(notification);
+        } else {
+            notification.textContent = "Mật khẩu cũ sai.";
+            notification.style.backgroundColor = "#f44336"; // Đỏ cho thông báo lỗi
+            displayNoti(notification);
         }
+    } catch (error) {
+        // Xử lý lỗi kết nối hoặc phản hồi
+        notification.textContent = "Có lỗi xảy ra. Vui lòng thử lại.";
+        notification.style.backgroundColor = "#f44336"; // Đỏ cho thông báo lỗi
+        displayNoti(notification);
     }
-    addNewFinger();
-
-    async function addNewFingerDB(fingerprintID) {
-        // Đoạn mã JavaScript dùng fetch để gửi yêu cầu POST
-        const apiUrl = "http://localhost:8080/api/addNewFingerDB"; // Thay URL này bằng URL của API thực tế
-        const userInfo = {
-            owner: owner,
-            gender: gender,
-            age: age,
-            phone: phone,
-            email: email,
-            finger: finger,
-            fingerprintID: fingerprintID
-        };
-        try {
-            const response = await fetch(apiUrl, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ userInfo: userInfo }),
-            });
-            if (response.ok) {
-                const data = await response.json();
-                if (data.status == "success") {
-                    //Thêm vân tay vào DB thành công (test)
-                    console.log("thêm vân tay vào DB thành công!");
-                } else {
-                    // thêm vân tay vào DB thát bại (test)
-                    console.log("thêm vân tay vào DB thất bại.");
-                }
-            } else {
-                console.error("Request failed:", response.status);
-            }
-        } catch (error) {
-            console.error("Error:", error);
-        }
-    }
-
-    // Reset form để xóa các giá trị hiện tại
-    document.getElementById('infoForm').reset();
-});
-
-
-// Đóng thông báo khi bấm ra ngoài
-const check = document.querySelector(".modal");
-check.addEventListener("click", function (event) {
-    if (event.target === check) {
-        check.style.display = "none"; // Ẩn modal nếu click ra ngoài
-    }
-});
-
-// document.querySelector(".modal-btn").addEventListener("click", function () {
-//     console.log("check");
-//     document.getElementById("modal").style.display = "none";
-//     document.querySelector(".modal2-confirm-title").innerHTML = "Vui lòng đưa vân tay vào máy quét";
-//     document.getElementById("modal2-confirmationContainer").insertAdjacentHTML("beforeend", '<i class="bi bi-fingerprint"></i>');
-//     overlay.style.display = "block";
-//     openNoti.style.display = "block";
-// });
+}
