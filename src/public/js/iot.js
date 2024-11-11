@@ -207,32 +207,45 @@ function populateTable(data) {
     const tableBody = document.getElementById("fingerprintTable").getElementsByTagName("tbody")[0];
     tableBody.innerHTML = ""; // Xóa nội dung cũ (nếu có)
 
-    // Sắp xếp data theo thứ tự tên owner
-    data.sort((a, b) => a.owner.localeCompare(b.owner));
+    // Sắp xếp data theo thứ tự tên chuSoHuu
+    data.sort((a, b) => a.chuSoHuu.localeCompare(b.chuSoHuu));
 
     data.forEach((item, index) => {
         const row = document.createElement("tr");
 
-        // Lưu fingerprintID vào thuộc tính của hàng
-        row.setAttribute("data-fingerprint-id", item.fingerprintID);
+        // Thêm vanTayID vào thuộc tính data-vanTayID của thẻ tr
+        row.setAttribute("data-vanTayID", item.vanTayID);
 
         // Tạo ô cho số thứ tự
         const serialCell = document.createElement("td");
         serialCell.textContent = index + 1; // Số thứ tự bắt đầu từ 1
         row.appendChild(serialCell);
 
-        // Tạo ô cho owner (đặt trước) và finger
+        // Tạo ô cho chuSoHuu
         const ownerCell = document.createElement("td");
-        ownerCell.textContent = item.owner;
+        ownerCell.textContent = item.chuSoHuu;
         row.appendChild(ownerCell);
 
+        // Tạo ô cho email
+        const emailCell = document.createElement("td");
+        emailCell.textContent = item.email;
+        row.appendChild(emailCell);
+
+        // Tạo ô cho tenBanTay
+        const handCell = document.createElement("td");
+        handCell.textContent = item.tenBanTay;
+        row.appendChild(handCell);
+
+        // Tạo ô cho vanTay
         const fingerCell = document.createElement("td");
-        fingerCell.textContent = item.finger;
+        fingerCell.textContent = item.vanTay;
         row.appendChild(fingerCell);
 
         tableBody.appendChild(row);
     });
 }
+
+
 
 let fingerprintID_delete;
 // Hiện thông báo khi bấm nút
@@ -260,7 +273,7 @@ showMessageButtons2.forEach((button) => {
                         const rows = document.querySelectorAll("#fingerprintTable tbody tr");
                         rows.forEach((row) => {
                             row.addEventListener("click", function () {
-                                fingerprintID_delete = row.getAttribute("data-fingerprint-id");
+                                fingerprintID_delete = row.getAttribute("data-vantayid");
                                 document.querySelector(".modal-content3").style.display = "none";
                                 document.getElementById("confirmationContainer").style.display = "block";
                             });
@@ -578,6 +591,7 @@ document.getElementById("infoForm").addEventListener("submit", function (event) 
                     document.querySelector(".modal").style.display = "none";
                     onRequire(true);
                     deleteElement("modal2-confirmationContainer2");
+                    successNotification.style.backgroundColor = "#f44336"; // Đỏ cho thông báo lỗi
                     successNotification.textContent = "thêm vân tay vào DB thất bại.";
                     successNotification.style.display = "block";
                     // Tự động ẩn thông báo thành công sau 3 giây
@@ -593,6 +607,7 @@ document.getElementById("infoForm").addEventListener("submit", function (event) 
                 document.querySelector(".modal").style.display = "none";
                 onRequire(true);
                 deleteElement("modal2-confirmationContainer2");
+                successNotification.style.backgroundColor = "#f44336"; // Đỏ cho thông báo lỗi
                 successNotification.textContent = "thêm vân tay vào DB thất bại.";
                 successNotification.style.display = "block";
                 // Tự động ẩn thông báo thành công sau 3 giây
@@ -653,6 +668,7 @@ document.getElementById("infoForm").addEventListener("submit", function (event) 
                     document.querySelector(".modal").style.display = "none";
                     onRequire(true);
                     deleteElement("modal2-confirmationContainer2");
+                    successNotification.style.backgroundColor = "#007BFF"; // Xanh cho thông báo thành công
                     successNotification.textContent = "Thêm vân tay thành công!";
                     successNotification.style.display = "block";
                     // Tự động ẩn thông báo thành công sau 3 giây
@@ -668,6 +684,7 @@ document.getElementById("infoForm").addEventListener("submit", function (event) 
                     document.querySelector(".modal").style.display = "none";
                     onRequire(true);
                     deleteElement("modal2-confirmationContainer2");
+                    successNotification.style.backgroundColor = "#f44336"; // Đỏ cho thông báo lỗi
                     successNotification.textContent = data.message;
                     successNotification.style.display = "block";
                     // Tự động ẩn thông báo thành công sau 3 giây
@@ -704,13 +721,6 @@ closeButton3.addEventListener("click", function () {
     modal3.style.display = "none"; // Ẩn modal
     console.log("check");
 });
-
-// Đóng thông báo khi bấm ra ngoài modal
-// window.addEventListener("click", function (event) {
-//     if (event.target === modal3) {
-//         modal3.style.display = "none"; // Ẩn modal nếu click ra ngoài
-//     }
-// });
 
 //xử lý sự kiện thay đổi mật khẩu
 // Xử lý sự kiện khi nhấn nút "Xác nhận"
@@ -763,10 +773,8 @@ async function updatePassword(oldPassword, newPassword, notification) {
         });
         const data = await response.json();
         // Xử lý phản hồi từ API
-        if (data.status) {
-            notification.textContent = "Đổi mật khẩu thành công!";
-            notification.style.backgroundColor = "#4CAF50"; // Xanh lá cho thông báo thành công
-            displayNoti(notification);
+        if (data.status == "success") {
+            updatePasswordDB(data.data[0].maHeThong, oldPassword, newPassword, notification);
         } else {
             notification.textContent = "Mật khẩu cũ sai.";
             notification.style.backgroundColor = "#f44336"; // Đỏ cho thông báo lỗi
@@ -777,5 +785,42 @@ async function updatePassword(oldPassword, newPassword, notification) {
         notification.textContent = "Có lỗi xảy ra. Vui lòng thử lại.";
         notification.style.backgroundColor = "#f44336"; // Đỏ cho thông báo lỗi
         displayNoti(notification);
+    }
+}
+
+
+async function updatePasswordDB(data, oldPassword, newPassword, notification) {
+    const successNotification = document.getElementById("successNotification");
+    // Đoạn mã JavaScript dùng fetch để gửi yêu cầu POST
+    const apiUrl = "http://localhost:8080/api/updatePasswordDB"; // Thay URL này bằng URL của API thực tế
+    const passwordInfo = {
+        maHeThong: data,
+        oldPassword: oldPassword,
+        newPassword: newPassword
+    };
+    try {
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ passwordInfo: passwordInfo }),
+        });
+        if (response.ok) {
+            const data = await response.json();
+            if (data.status == "success") {
+                notification.textContent = "Đổi mật khẩu thành công!";
+                notification.style.backgroundColor = "#4CAF50"; // Xanh lá cho thông báo thành công
+                displayNoti(notification);
+            } else{
+                notification.textContent = data.message;
+                notification.style.backgroundColor = "#f44336"; // Đỏ cho thông báo lỗi
+                displayNoti(notification);
+            }
+        } else {
+            console.error("Request failed:", response.status);
+        }
+    } catch (error) {
+        console.error("Error:", error);
     }
 }

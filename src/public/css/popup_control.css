@@ -389,3 +389,45 @@ button:hover {
 .fa-keyboard{
     font-size: 70px;
 }
+
+.tableContainer{
+    height: 500px;
+    overflow: auto;
+}
+.ownerSelect{
+    height: 200px;
+    overflow: auto;
+}
+
+/* Áp dụng cho toàn bộ trang */
+html {
+    scrollbar-width: thin; /* Độ rộng mỏng hơn cho Firefox */
+    scrollbar-color: #007BFF #f1e3d3; /* Màu nâu cho thanh cuộn và màu be nhạt cho nền */
+}
+
+/* Thanh cuộn cho trình duyệt WebKit (Chrome, Safari, Edge) */
+html::-webkit-scrollbar {
+    width: 4px; /* Độ rộng mỏng hơn của thanh cuộn dọc */
+    height: 4px; /* Chiều cao mỏng hơn của thanh cuộn ngang */
+}
+
+html::-webkit-scrollbar-track {
+    background: #f1e3d3; /* Màu nền của track */
+    border-radius: 20px; /* Bo tròn track */
+}
+
+html::-webkit-scrollbar-thumb {
+    background-color: #007BFF; /* Màu thanh cuộn nâu */
+    border-radius: 20px; /* Bo tròn thanh cuộn */
+    border: 1px solid #f1e3d3; /* Viền xung quanh thanh cuộn để thêm hiệu ứng thon gọn */
+}
+
+/* Màu thanh cuộn khi hover */
+html::-webkit-scrollbar-thumb:hover {
+    background-color: #A0522D; /* Màu nâu đậm hơn khi hover */
+}
+
+select {
+    width: 200px; /* Chiều rộng của thẻ select */
+    overflow-y: auto; /* Thêm thanh cuộn dọc */
+}

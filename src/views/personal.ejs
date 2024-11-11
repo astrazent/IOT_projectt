@@ -1,0 +1,151 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Mở cửa thông minh</title>
+        <link rel="stylesheet" href="/css/personal.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" />
+    </head>
+    <body>
+        <!-- Navbar -->
+        <nav class="navbar">
+            <!-- Logo -->
+            <div class="logo">
+                <img src="../images/logo.png" alt="" />
+            </div>
+
+            <!-- Center Navigation Items -->
+            <div class="center-nav">
+                <ul class="nav-items">
+                    <li><a href="/" >Điều khiển</a></li>
+                    <li><a href="/caNhan" class="active">Cá nhân</a></li>
+                    <li><a href="#">Về chúng tôi</a></li>
+                </ul>
+            </div>
+
+            <!-- Avatar -->
+            <div class="avatar">
+                <img src="../images/avatar.png" alt="Avatar" />
+            </div>
+        </nav>
+        <div class="container">
+            <h3 class="title">Quản lý hệ thống</h3>
+            <div class="box-btn">
+                <button id="buttonA" class="show-message-button2 btn">Gửi tin nhắn mỗi khi mở cửa</button>
+                <button id="buttonB" class="show-message-button3 btn">Quản lý danh sách người dùng </button>
+                <button id="buttonC" class="show-message-button3 btn">Lịch sử mở cửa </button>
+                <button id="buttonD" class="show-message-button3 btn">Lịch sử thao tác </button>
+            </div>
+        </div>
+
+        <!-- Thông báo gửi tin nhắn mỗi khi mở cửa -->
+        <div class="notification-container" style="display: none;">
+            <div class="notification-header">
+                <h3 class="notification-title">Gửi tin nhắn mỗi khi mở cửa</h3>
+                <span class="close-button">&times;</span>
+            </div>
+            <div class="notification-content">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="notificationToggle">
+                    <span class="slider"></span>
+                </label>
+                <p>Bật/tắt gửi thông báo</p>
+            </div>
+        </div>
+
+        <!-- Bảng danh sách người dùng -->
+        <div class="modal3">
+            <div class="modal-content3">
+                <!-- Container chính chứa trường tìm kiếm và bảng danh sách người dùng -->
+                <div id="userContainer">
+                    <span class="close3">&times;</span>
+                    <h4>Danh sách người dùng</h4>
+                    <!-- Trường tìm kiếm -->
+                    <input type="text" id="searchInput" placeholder="Tìm kiếm..." />
+
+                    <!-- Bảng danh sách người dùng -->
+                    <div class="tableContainer">
+                        <table id="userTable">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Chủ sở hữu</th>
+                                    <th>Giới tính</th>
+                                    <th>Tuổi</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Email</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bảng danh sách lịch sử mở cửa -->
+        <div class="modal4">
+            <div class="modal-content4">
+                <!-- Container chính chứa trường tìm kiếm và bảng danh sách lịch sử mở cửa -->
+                <div id="diaryContainer">
+                    <span class="close4">&times;</span>
+                    <h4>Lịch sử mở cửa</h4>
+                    <!-- Trường tìm kiếm -->
+                    <input type="text" id="searchInput2" placeholder="Tìm kiếm..." />
+
+                    <!-- Bảng danh sách lịch sử mở cửa -->
+                    <div class="tableContainer">
+                        <table id="diaryTable">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Ngày</th>
+                                    <th>Giờ</th>
+                                    <th>Phương thức</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bảng danh sách lịch sử thao tác -->
+        <div class="modal5">
+            <div class="modal-content5">
+                <!-- Container chính chứa trường tìm kiếm và bảng danh sách lịch sử mở cửa -->
+                <div id="actionContainer">
+                    <span class="close5">&times;</span>
+                    <h4>Lịch sử mở cửa</h4>
+                    <!-- Trường tìm kiếm -->
+                    <input type="text" id="searchInput3" placeholder="Tìm kiếm..." />
+
+                    <!-- Bảng danh sách lịch sử mở cửa -->
+                    <div class="tableContainer">
+                        <table id="actionTable">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Ngày</th>
+                                    <th>Giờ</th>
+                                    <th>Nội dung thay đổi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="overlay" style="display: none;"></div>
+
+        <script src="/js/personal.js"></script>
+    </body>
+</html>

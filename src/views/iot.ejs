@@ -20,8 +20,8 @@
             <!-- Center Navigation Items -->
             <div class="center-nav">
                 <ul class="nav-items">
-                    <li><a href="#" class="active">Điều khiển</a></li>
-                    <li><a href="#">Cá nhân</a></li>
+                    <li><a href="/" class="active">Điều khiển</a></li>
+                    <li><a href="/caNhan">Cá nhân</a></li>
                     <li><a href="#">Về chúng tôi</a></li>
                 </ul>
             </div>
@@ -45,6 +45,7 @@
         <div id="modal" class="modal">
             <div class="modal-content">
                 <span id="closeModal" class="close">&times;</span>
+                <h2>Thêm vân tay</h2>
                 <form id="infoForm">
                     <label for="ownerSelect">Chọn chủ sở hữu:</label>
                     <select id="ownerSelect" name="ownerSelect" required onchange="toggleOwnerInput()">
@@ -79,7 +80,7 @@
                                 <label for="gender">Giới tính:</label>
                                 <select id="gender" name="gender" required>
                                     <option value="">Chọn giới tính</option>
-                                    <option value="male">Nam</option>
+                                    <option value="nam">Nam</option>
                                     <option value="female">Nữ</option>
                                     <option value="other">Khác</option>
                                 </select>
@@ -133,42 +134,21 @@
                     <input type="text" id="searchInput" placeholder="Tìm kiếm theo tên ngón hoặc chủ sở hữu..." />
 
                     <!-- Bảng danh sách vân tay -->
-                    <table id="fingerprintTable">
-                        <thead>
-                            <tr>
-                                <th>STT</th>
-                                <th>Chủ sở hữu</th>
-                                <th>Tên ngón</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- <tr>
-                                <td>1</td>
-                                <td>Ngón cái</td>
-                                <td>Nguyễn Văn A</td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>Ngón trỏ</td>
-                                <td>Trần Thị B</td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>Ngón giữa</td>
-                                <td>Lê Văn C</td>
-                            </tr>
-                            <tr>
-                                <td>4</td>
-                                <td>Ngón áp út</td>
-                                <td>Phạm Văn D</td>
-                            </tr>
-                            <tr>
-                                <td>5</td>
-                                <td>Ngón út</td>
-                                <td>Nguyễn Thị E</td>
-                            </tr> -->
-                        </tbody>
-                    </table>
+                    <div class="tableContainer">
+                        <table id="fingerprintTable">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Chủ sở hữu</th>
+                                    <th>Email</th>
+                                    <th>Tên bàn tay</th>
+                                    <th>Tên ngón</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 

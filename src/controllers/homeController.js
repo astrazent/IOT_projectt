@@ -1,5 +1,6 @@
 const connection = require("../config/database");
-
+const bcrypt = require("bcryptjs");
+const fs = require("fs");
 const getHomepage = async (req, res) => {
     const [results, fields] = await connection.query(`select * from Users`); // dùng `` được phép xuống dòng
     return res.render("home.ejs", { Users: results }); // có return hay không đều được, tốt nhất nên có
@@ -23,6 +24,9 @@ const getUpdatePage = async (req, res) => {
 };
 const getIotHomePage = async (req, res) => {
     return res.render("iot.ejs");
+};
+const getPersonalPage = async (req, res) => {
+    return res.render("personal.ejs");
 };
 
 // mock api
@@ -64,19 +68,15 @@ const unlockHistory = async (req, res) => {
     const nt = await connection.getConnection();
     let maNguoiDung;
     try {
-        await nt.beginTransaction();  // Bắt đầu giao dịch
+        await nt.beginTransaction(); // Bắt đầu giao dịch
         // Bước 1: Lấy maNguoiDung từ bảng VanTay dựa trên fingerprintID
-        if(fingerprintID != null){
-            const [user] = await nt.execute(
-                `SELECT maNguoiDung FROM VanTay WHERE vanTayID = ?;`,
-                [fingerprintID]
-            );
+        if (fingerprintID != null) {
+            const [user] = await nt.execute(`SELECT maNguoiDung FROM VanTay WHERE vanTayID = ?;`, [fingerprintID]);
             if (user.length === 0) {
                 throw new Error("Người dùng không tồn tại.");
             }
             maNguoiDung = user[0].maNguoiDung;
-        }
-        else{
+        } else {
             maNguoiDung = null;
         }
         const [system] = await nt.execute(
@@ -92,18 +92,29 @@ const unlockHistory = async (req, res) => {
             VALUES (?, ?, ?, ?, ?)`,
             [timestamp, unlockType, unlockStatus, maHeThong, maNguoiDung]
         );
-        await nt.commit();  // Commit giao dịch nếu mọi thứ thành công
+        await nt.commit(); // Commit giao dịch nếu mọi thứ thành công
         console.log("Ghi nhật ký truy cập thành công.");
     } catch (error) {
-        await nt.rollback();  // Rollback nếu có lỗi
+        await nt.rollback(); // Rollback nếu có lỗi
         console.error("Lỗi:", error.message);
     } finally {
-        nt.release();  // Chỉ gọi release() nếu nó tồn tại
+        nt.release(); // Chỉ gọi release() nếu nó tồn tại
     }
     return res.json({ status: "success", message: "Save unlockHistory success!" });
 };
 const getListFinger = async (req, res) => {
-    const [results, fields] = await connection.query(`SELECT finger, owner, fingerprintID FROM UserInfo;`); // dùng `` được phép xuống dòng
+    const [results, fields] = await connection.query(`
+        SELECT 
+            NguoiDung.chuSoHuu, 
+            NguoiDung.email, 
+            VanTay.tenBanTay, 
+            VanTay.vanTay,
+            VanTay.vanTayID
+        FROM 
+            NguoiDung
+        JOIN 
+            VanTay ON NguoiDung.maNguoiDung = VanTay.maNguoiDung;
+        `); // dùng `` được phép xuống dòng
     return res.json({
         status: "success",
         message: "Get list fingerprint success!",
@@ -128,33 +139,42 @@ const addNewFingerDB = async (req, res) => {
     // Lấy kết nối từ pool
     const nt = await connection.getConnection();
     try {
-        await nt.beginTransaction();  // Bắt đầu giao dịch
+        await nt.beginTransaction(); // Bắt đầu giao dịch
         let userID;
-        if(ownerStatus){
+        if (ownerStatus) {
             //Thêm thông tin người dùng
-            const [userInfo] = await nt.execute(
-                `INSERT INTO NguoiDung (chuSoHuu, gioiTinh, tuoi, soDienThoai, email) VALUES (?, ?, ?, ?, ?)`,
-                [owner, gender, age, phone, email]
-            );
+            const [userInfo] = await nt.execute(`INSERT INTO NguoiDung (chuSoHuu, gioiTinh, tuoi, soDienThoai, email) VALUES (?, ?, ?, ?, ?)`, [owner, gender, age, phone, email]);
             userID = userInfo.insertId;
-        }
-        else{
+        } else {
             // Lấy mã người dùng khi biết vanTayID
             userID = ownerSelect;
         }
-        //Thêm thông tin vân tay
-        await nt.execute(
-            `INSERT INTO VanTay (tenBanTay, ngayDangKy, vanTay, vanTayID, maNguoiDung) VALUES (?, ?, ?, ?, ?)`,
-            [hand, timeConvert(), finger, fingerprintID, userID]
+
+        //Kiểm tra xem bàn tay, vân tay, người dùng có bị trùng lặp nhau hay không
+        const [checkFinger] = await nt.execute(
+            `SELECT 
+            COUNT(*) AS soLanTrungLap
+            FROM 
+                VanTay
+            WHERE 
+                maNguoiDung = ? 
+                AND tenBanTay = ? 
+                AND vanTay = ?`,
+            [userID, hand, finger]
         );
-        await nt.commit();  // Commit giao dịch nếu mọi thứ thành công
+        if (checkFinger[0].soLanTrungLap > 0) {
+            return res.json({ status: "error", message: "Vân tay đã tồn tại." });
+        }
+        //Thêm thông tin vân tay
+        await nt.execute(`INSERT INTO VanTay (tenBanTay, ngayDangKy, vanTay, vanTayID, maNguoiDung) VALUES (?, ?, ?, ?, ?)`, [hand, timeConvert(), finger, fingerprintID, userID]);
+        await nt.commit(); // Commit giao dịch nếu mọi thứ thành công
         console.log("Ghi nhật ký truy cập thành công.");
     } catch (error) {
-        await nt.rollback();  // Rollback nếu có lỗi
+        await nt.rollback(); // Rollback nếu có lỗi
         console.error("Lỗi:", error.message);
         return res.json({ status: "error", message: error.message });
     } finally {
-        nt.release();  // Chỉ gọi release() nếu nó tồn tại
+        nt.release(); // Chỉ gọi release() nếu nó tồn tại
     }
     return res.json({ status: "success", message: "Add fingerprint to DB success!" });
 };
@@ -165,8 +185,23 @@ const deleteFinger = async (req, res) => {
 };
 const deleteFingerDB = async (req, res) => {
     const { fingerprintId } = req.body;
-    const [results, fields] = await connection.query(`DELETE FROM UserInfo WHERE fingerprintID = ?;`, [fingerprintId]); // dùng `` được phép xuống dòng
-    if (results.affectedRows) {
+    // Lấy kết nối từ pool
+    const nt = await connection.getConnection();
+    let deleteFingerprint;
+    try {
+        await nt.beginTransaction(); // Bắt đầu giao dịch
+        //Xoá vân tay trong bảng
+        deleteFingerprint = await nt.execute(`DELETE FROM VanTay WHERE vanTayID = ?;`, [fingerprintId]);
+        await nt.commit(); // Commit giao dịch nếu mọi thứ thành công
+        console.log("Ghi nhật ký truy cập thành công.");
+    } catch (error) {
+        await nt.rollback(); // Rollback nếu có lỗi
+        console.error("Lỗi:", error.message);
+        return res.json({ status: "error", message: error.message });
+    } finally {
+        nt.release(); // Chỉ gọi release() nếu nó tồn tại
+    }
+    if (deleteFingerprint[0].affectedRows) {
         return res.json({ status: "success", message: "Delete fingerprint on DB success!" });
     } else {
         return res.json({ status: "error", message: "Delete fingerprint on DB fail." });
@@ -175,13 +210,97 @@ const deleteFingerDB = async (req, res) => {
 const updatePassword = async (req, res) => {
     console.log("delay respone 3 second...");
     const result = await delayedFunction();
-    return res.json({ status: "success", message: "Update password success!" });
+    return res.json({ status: "success", message: "Update password success!", data: [{ maHeThong: 1 }] });
 };
 const updatePasswordDB = async (req, res) => {
-    const { oldPassword, newPassword } = req.body;
-    const [results, fields] = await connection.query("SELECT * FROM UserInfo WHERE Name = ?", [registerName, registerEmail]);
-    await connection.query("INSERT INTO UserInfo (Password) VALUES (?)", [password]);
+    let { maHeThong, oldPassword, newPassword } = req.body.passwordInfo;
+    // Lấy kết nối từ pool
+    const nt = await connection.getConnection();
+    try {
+        await nt.beginTransaction(); // Bắt đầu giao dịch
+        //Kiểm tra mật khẩu cũ
+        const [reslt] = await nt.execute("SELECT matKhauMaHoa FROM HeThongKhoa WHERE maHeThong = ?", [maHeThong]);
+        if (reslt.length == 0) {
+            return res.json({ status: "error", message: "Hệ thống không tồn tại." });
+        }
+        const currentPassword = reslt[0].matKhauMaHoa;
+        if (!(await bcrypt.compare(oldPassword, currentPassword))) {
+            return res.json({ status: "error", message: "Mật khẩu cũ không đúng." });
+        } else if ((await bcrypt.compare(newPassword, currentPassword))) {
+            return res.json({ status: "error", message: "Mật khẩu mới bị trùng với các mật khẩu trước đây." });
+        }
+        // Dữ liệu bạn muốn lưu
+        const data = "Mật khẩu hệ thống: " + newPassword;
+        newPassword = await bcrypt.hash(newPassword, 8);
+        //Cập nhật mật khẩu
+        const [result] = await nt.execute("UPDATE HeThongKhoa SET matKhauMaHoa = ?, lanThayDoiCuoi = NOW() WHERE maHeThong = ?", [newPassword, maHeThong]);
+
+        // Lưu dữ liệu vào file 'output.txt'
+        fs.writeFile("password_IOT.txt", data, (err) => {
+            if (err) {
+                console.error("Lỗi khi ghi file:", err);
+            } else {
+                console.log("Mật khẩu đã được lưu vào file password_IOT.txt");
+            }
+        });
+        await nt.commit(); // Commit giao dịch nếu mọi thứ thành công
+        console.log("Ghi nhật ký truy cập thành công.");
+    } catch (error) {
+        await nt.rollback(); // Rollback nếu có lỗi
+        console.error("Lỗi:", error.message);
+        return res.json({ status: "error", message: error.message });
+    } finally {
+        nt.release(); // Chỉ gọi release() nếu nó tồn tại
+    }
     return res.json({ status: "success", message: "Update password to DB success!" });
+};
+
+const getListUser = async (req, res) => {
+    const [results, fields] = await connection.query(`
+        SELECT maNguoiDung, chuSoHuu, gioiTinh, tuoi, soDienThoai, email
+        FROM NguoiDung;
+        `); // dùng `` được phép xuống dòng
+    return res.json({
+        status: "success",
+        message: "Get list users success!",
+        data: results,
+    });
+};
+const getSystemID = async (req, res) => {
+    return res.json({ status: "success", message: "Get systemID success!", data: [{ maHeThong: 1 }] });
+};
+const getToggleStatus = async (req, res) => {
+    const { maHeThong } = req.body;
+    const [results, fields] = await connection.query(`
+        SELECT thongBaoTuXa FROM HeThongKhoa WHERE maHeThong = ?`, [maHeThong]); // dùng `` được phép xuống dòng
+    return res.json({
+        status: "success",
+        message: "Get list users success!",
+        data: results,
+    });
+};
+const getListDiary = async (req, res) => {
+    const [results, fields] = await connection.query(`
+        SELECT thoiGian, loaiTruyCap, thanhCong
+        FROM NhatKyTruyCap;
+        `); // dùng `` được phép xuống dòng
+        console.log(results);
+    return res.json({
+        status: "success",
+        message: "Get list users success!",
+        data: results,
+    });
+};
+const getListAction = async (req, res) => {
+    const [results, fields] = await connection.query(`
+        SELECT ngayThayDoi, noiDungThayDoi
+        FROM LichSuThaoTac;
+        `); // dùng `` được phép xuống dòng
+    return res.json({
+        status: "success",
+        message: "Get list users success!",
+        data: results,
+    });
 };
 
 module.exports = {
@@ -191,6 +310,7 @@ module.exports = {
     getCreateUser,
     getUpdatePage,
     getIotHomePage,
+    getPersonalPage,
     unlockByFinger,
     unlockByPassword,
     unlockHistory,
@@ -201,5 +321,10 @@ module.exports = {
     deleteFinger,
     deleteFingerDB,
     updatePassword,
-    updatePasswordDB
+    updatePasswordDB,
+    getListUser,
+    getSystemID,
+    getToggleStatus,
+    getListDiary,
+    getListAction
 };
