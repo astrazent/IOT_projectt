@@ -57,7 +57,6 @@ showMessageButtons.forEach((button) => {
 });
 
 const deleteElement = (id) => {
-    console.log("check");
     let container = document.getElementById(id);
     // Kiểm tra nếu container có phần tử con, sau đó xóa phần tử cuối cùng
     if (container.lastElementChild) {
@@ -88,10 +87,12 @@ async function unlockHistory(status, type, ownnerID, timestamp, systemID) {
                 systemID: systemID,
             }),
         });
+        const data = await response.json();
         if (response.ok) {
             if (data.status == "success") {
                 //Khi lưu vào DB thành công
                 console.log("Lưu lịch sử mở cửa vào DB thành công!");
+                return data.data[0];
             } else {
                 console.log("Lưu lịch sử mở cửa vào DB thất bại.");
             }
@@ -101,6 +102,116 @@ async function unlockHistory(status, type, ownnerID, timestamp, systemID) {
     } catch (error) {
         console.error("Error:", error);
     }
+}
+
+//Lấy trạng thái của toggle và email để gửi email cho người dùng
+let email_Receive;
+let status_Receive;
+async function getToggleStatus(id) {
+    const apiUrl = "http://localhost:8080/api/getToggleStatus"; // Thay URL này bằng URL của API thực tế
+    try {
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ maHeThong: id }),
+        });
+        if (response.ok) {
+            const data = await response.json();
+            if (data.status == "success") {
+                //Lấy danh sách về thành công (test)
+                console.log("lấy trạng thái tin nhắn và email thành công!");
+                status_Receive = data.data[0].thongBaoTuXa;
+                email_Receive = data.data[0].emailNhanTB;
+            } else {
+                // Lấy danh sách thát bại (test)
+                console.log("lấy trạng thái tin nhắn và email thất bại.");
+            }
+        } else {
+            console.error("Request failed:", response.status);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+
+//Lấy trạng thái của toggle
+async function getSystemID() {
+    const apiUrl = "http://localhost:8080/api/arduino/getSystemID"; // Thay URL này bằng URL của API thực tế
+    try {
+        const response = await fetch(apiUrl, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        if (response.ok) {
+            const data = await response.json();
+            if (data.status == "success") {
+                //Lấy mã hệ thống về thành công (test)
+                console.log("lấy mã hệ thống thành công!");
+                getToggleStatus(data.data[0].maHeThong);
+            } else {
+                // Lấy mã hệ thống thát bại (test)
+                console.log("lấy mã hệ thống thất bại.");
+            }
+        } else {
+            console.error("Request failed:", response.status);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+getSystemID();
+
+const sendEmail = (fromName, emailUnlock, method, toEmail = "phannguyen2300@gmail.com", systemName, message = getCurrentTime()) => {
+    // Khởi tạo EmailJS với User ID của bạn
+    emailjs.init("dXTlEQO9F3L1j7Wcp");
+    //null khi mở cửa bằng mật khẩu
+    if(fromName == null){
+        fromName = "người dùng lạ";
+    }
+    if(emailUnlock == null){
+        emailUnlock = "không rõ";
+    }
+    const templateParams = {
+        from_name: fromName,   // Tên người gửi
+        emailUser: emailUnlock, // Email của người mở cửa
+        method: method, // Phương thức mở cửa
+        to_email: toEmail, // Email người gửi
+        from_systemName: systemName, // tên hệ thống
+        message: message, // Nội dung tin nhắn
+    };
+    console.log(templateParams);
+    // Gửi email với Service ID, Template ID, và các thông tin form
+    emailjs.send("service_yka40im", "template_fi68hwg", templateParams).then(
+        function () {
+            console.log("Gửi email thành công!");
+        },
+        function (error) {
+            console.log("Failed to send email: " + error.text);
+        }
+    );
+};
+
+//Lấy thời gian hiện tại
+function getCurrentTime() {
+    const now = new Date();
+
+    const daysOfWeek = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
+    const dayOfWeek = daysOfWeek[now.getDay()];
+
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Tháng trong JavaScript bắt đầu từ 0, nên cần cộng thêm 1
+    const year = now.getFullYear();
+
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+
+    const currentTime = `${dayOfWeek}, ${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+    return currentTime;
 }
 
 //hiển thị thông báo vui lòng nhập
@@ -128,10 +239,15 @@ modalFinger.addEventListener("click", function () {
                 deleteElement("modal2-confirmationContainer");
                 openNoti.style.display = "none";
                 overlay.style.display = "none";
-                unlockHistory(data.status, "vân tay", data.data[0].fingerprintID, data.data[0].dateTime, data.data[0].systemID);
+                const userInfo = await unlockHistory(data.status, "vân tay", data.data[0].fingerprintID, data.data[0].dateTime, data.data[0].systemID);
                 if (data.status == "success") {
                     //Khi mở cửa thành công
-                    success("Đã mở cửa");
+                    if (status_Receive) {
+                        success("Đã mở cửa và gửi thông báo");
+                        sendEmail(userInfo.owner, userInfo.emailUnlock, userInfo.method, userInfo.email, userInfo.systemName, getCurrentTime());
+                    } else {
+                        success("Đã mở cửa");
+                    }
                 } else {
                     error_nofi("Mở cửa thất bại");
                 }
@@ -169,10 +285,15 @@ modalPass.addEventListener("click", function () {
                 deleteElement("modal2-confirmationContainer");
                 openNoti.style.display = "none";
                 overlay.style.display = "none";
-                unlockHistory(data.status, "mật khẩu", data.data[0].fingerprintID, data.data[0].dateTime, data.data[0].systemID);
+                const systemInfo = await unlockHistory(data.status, "mật khẩu", data.data[0].fingerprintID, data.data[0].dateTime, data.data[0].systemID);
                 if (data.status == "success") {
-                    //Khi mở cửa thành công (test)
-                    success("Đã mở cửa");
+                    //Khi mở cửa thành công
+                    if (status_Receive) {
+                        success("Đã mở cửa và gửi thông báo");
+                        sendEmail(systemInfo.owner,  systemInfo.emailUnlock, systemInfo.method, systemInfo.email, systemInfo.systemName, getCurrentTime());
+                    } else {
+                        success("Đã mở cửa");
+                    }
                 } else {
                     error_nofi("Mở cửa thất bại");
                 }
@@ -244,8 +365,6 @@ function populateTable(data) {
         tableBody.appendChild(row);
     });
 }
-
-
 
 let fingerprintID_delete;
 // Hiện thông báo khi bấm nút
@@ -484,13 +603,12 @@ const onRequire = (status) => {
     document.getElementById("age").required = status;
     document.getElementById("phone").required = status;
     document.getElementById("email").required = status;
-    if(status){
+    if (status) {
         document.querySelector(".information").style.display = "block";
-    }
-    else{
+    } else {
         document.querySelector(".information").style.display = "none";
     }
-}
+};
 //Hiển thị trường nhập chủ sở hữu
 function toggleOwnerInput() {
     const ownerSelect = document.getElementById("ownerSelect");
@@ -535,8 +653,7 @@ document.getElementById("infoForm").addEventListener("submit", function (event) 
         // Kiểm tra xem có chọn chủ sở hữu nào không
         alert("Vui lòng chọn một chủ sở hữu.");
         return;
-    }
-    else{
+    } else {
         // Kiểm tra tính hợp lệ của các trường (nếu cần thêm yêu cầu đặc biệt)
         if (!hand || !finger) {
             alert("Vui lòng điền đầy đủ thông tin.");
@@ -788,7 +905,6 @@ async function updatePassword(oldPassword, newPassword, notification) {
     }
 }
 
-
 async function updatePasswordDB(data, oldPassword, newPassword, notification) {
     const successNotification = document.getElementById("successNotification");
     // Đoạn mã JavaScript dùng fetch để gửi yêu cầu POST
@@ -796,7 +912,7 @@ async function updatePasswordDB(data, oldPassword, newPassword, notification) {
     const passwordInfo = {
         maHeThong: data,
         oldPassword: oldPassword,
-        newPassword: newPassword
+        newPassword: newPassword,
     };
     try {
         const response = await fetch(apiUrl, {
@@ -812,7 +928,7 @@ async function updatePasswordDB(data, oldPassword, newPassword, notification) {
                 notification.textContent = "Đổi mật khẩu thành công!";
                 notification.style.backgroundColor = "#4CAF50"; // Xanh lá cho thông báo thành công
                 displayNoti(notification);
-            } else{
+            } else {
                 notification.textContent = data.message;
                 notification.style.backgroundColor = "#f44336"; // Đỏ cho thông báo lỗi
                 displayNoti(notification);

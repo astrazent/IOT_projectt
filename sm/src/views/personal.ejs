@@ -45,6 +45,22 @@
                 <h3 class="notification-title">Gửi tin nhắn mỗi khi mở cửa</h3>
                 <span class="close-button">&times;</span>
             </div>
+            <div id="emailReceive">
+                <h5>Email nhận thông báo:</h5>
+                <span id="emailDisplay">phannguyen@gmail.com</span>
+                <button class="changeEmail">Thay đổi</button>
+            </div>
+                <!-- Form thay đổi email -->
+            <div id="emailForm" style="display: none;">
+                <h5>Nhập email mới:</h5>
+                <input type="email" id="newEmail" placeholder="Nhập email mới" />
+                <button class="saveEmail">Lưu</button>
+                <button class="cancelChange">Hủy</button>
+            </div>
+            <!-- <div id="emailReceive">
+                <label for="emailReceive">Email nhận thông báo:</label>
+                <input type="text" id="emailReceive" name="emailReceive" />
+            </div> -->
             <div class="notification-content">
                 <label class="toggle-switch">
                     <input type="checkbox" id="notificationToggle">
@@ -52,6 +68,9 @@
                 </label>
                 <p>Bật/tắt gửi thông báo</p>
             </div>
+
+            <!-- Hộp thông báo -->
+            <div id="messageBox" style="display: none;"></div>
         </div>
 
         <!-- Bảng danh sách người dùng -->
@@ -145,7 +164,6 @@
         </div>
 
         <div id="overlay" style="display: none;"></div>
-
         <script src="/js/personal.js"></script>
     </body>
 </html>

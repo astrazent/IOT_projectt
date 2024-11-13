@@ -7,7 +7,8 @@ COLLATE utf8mb4_unicode_ci;
 -- Tạo bảng chính thức-----------------------------------------------------------
 -- Có một số thay đổi so với CSDL gốc như sau: 
 -- Mật khẩu: bỏ quan hệ với user, gộp chung với bảng HeThongKhoa
--- Bảng lanTruyCap --> lichSuCaiDat (quản lý lịch sử cài đặt hệ thống)
+-- Bảng lanTruyCap --> lichSuThaoTac (quản lý lịch sử cài đặt hệ thống)
+-- Bảng NhatKyTruyCap --> LichSuMoCua (quản lý việc mở cửa)
 -- Thêm, sửa một vài thuộc tính cho bảng: NguoiDung, cua, vanTay, HeThongKhoa
 
 -- Bảng Cửa
@@ -32,8 +33,9 @@ CREATE TABLE HeThongKhoa (
     tenHeThong VARCHAR(100) NOT NULL,      -- Tên chủ sở hữu
     dangHoatDong BOOLEAN,
     matKhauMaHoa VARCHAR(255),              -- Thêm trường mật khẩu đã mã hóa
-    lanThayDoiCuoi DATETIME,                    -- Ngày thay đổi mật khẩu cuối
+    lanThayDoiMKCuoi DATETIME,                    -- Ngày thay đổi mật khẩu cuối
     thongBaoTuXa BOOLEAN,
+    emailNhanTB VARCHAR(255),
     heThongID INT NOT NULL,
     maCua INT,
     FOREIGN KEY (maCua) REFERENCES Cua(maCua)
@@ -51,7 +53,7 @@ CREATE TABLE LichSuThaoTac (
 );
 
 -- Bảng Nhật Ký Truy Cập (liên kết với bảng Hệ Thống Khóa)
-CREATE TABLE NhatKyTruyCap (
+CREATE TABLE LichSuMoCua (
     maNhatKy INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     thoiGian DATETIME,
     loaiTruyCap VARCHAR(50),
@@ -110,16 +112,17 @@ VALUES
     (TRUE);   -- maCua = 5
 
 -- Bảng hệ thống khoá
-INSERT INTO HeThongKhoa (tenHeThong, dangHoatDong, matKhauMaHoa, lanThayDoiCuoi, thongBaoTuXa, heThongID, maCua)
+INSERT INTO HeThongKhoa 
+    (tenHeThong, dangHoatDong, matKhauMaHoa, lanThayDoiMKCuoi, thongBaoTuXa, emailNhanTB, heThongID, maCua) 
 VALUES
-('Hệ Thống Cửa Chính', TRUE, '$2a$08$x6qGhZHC0/KEObtjBka.z.ksaaOHRgsme8wRGcgrkD874ZH.ihZsy', DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 1, 1), --Mật khẩu mặc định: 5555
-('Hệ Thống Cửa Phụ', FALSE, LPAD(FLOOR(RAND() * 10000), 4, '0'), DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 2, 2),
-('Hệ Thống Cửa Văn Phòng', TRUE, LPAD(FLOOR(RAND() * 10000), 4, '0'), DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 3, 3),
-('Hệ Thống Cửa Kho', FALSE, LPAD(FLOOR(RAND() * 10000), 4, '0'), DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 4, 4),
-('Hệ Thống Cửa Gara', TRUE, LPAD(FLOOR(RAND() * 10000), 4, '0'), DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 5, 5);
+    ('Hệ thống cửa chính', TRUE, '$2a$08$gEp8x1Ae3x3rCkHBfueEyeeMh/cUJKtJW.fFZHy/4bIOWzrR5Pjmm', DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 1, 'phannguyen2300@gmail.com', 1, 1),
+    ('Hệ thống cửa phụ', FALSE, LPAD(FLOOR(RAND() * 10000), 4, '0'), DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 'phu@gmail.com', 2, 2),
+    ('Hệ thống cửa sân vườn', TRUE, LPAD(FLOOR(RAND() * 10000), 4, '0'), DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 'vanphong@gmail.com', 3, 3),
+    ('Hệ thống cửa kho', FALSE, LPAD(FLOOR(RAND() * 10000), 4, '0'), DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 'kho@gmail.com', 4, 4),
+    ('Hệ thống cửa gara', TRUE, LPAD(FLOOR(RAND() * 10000), 4, '0'), DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 'gara@gmail.com', 5, 5);
 
 --Bảng nhật ký truy cập
-INSERT INTO NhatKyTruyCap (thoiGian, loaiTruyCap, thanhCong, maHeThong, maNguoiDung) VALUES
+INSERT INTO LichSuMoCua (thoiGian, loaiTruyCap, thanhCong, maHeThong, maNguoiDung) VALUES
 ('2024-11-10 08:30:00', 'mật khẩu', TRUE, 1, 1),
 ('2024-11-10 09:00:15', 'vân tay', TRUE, 1, 2),
 ('2024-11-11 10:15:00', 'mật khẩu', FALSE, 1, 3),
@@ -141,7 +144,7 @@ VALUES
 
 -- Xoá tất cả các bảng vừa tạo (Drop đúng thứ tự từ trên xuống dưới)-------------------------------------------------------------
 DROP TABLE IF EXISTS LanTruyCap;
-DROP TABLE IF EXISTS NhatKyTruyCap;
+DROP TABLE IF EXISTS LichSuMoCua;
 DROP TABLE IF EXISTS VanTay;
 DROP TABLE IF EXISTS LichSuThaoTac;
 DROP TABLE IF EXISTS HeThongKhoa;

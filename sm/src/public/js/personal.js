@@ -31,8 +31,10 @@ async function getToggleStatus(id) {
                 //Lấy danh sách về thành công (test)
                 console.log("lấy trạng thái tin nhắn thành công!");
                 const status = data.data[0].thongBaoTuXa;
+                document.getElementById('emailDisplay').textContent = data.data[0].emailNhanTB;
                 if(status){
                     toggleSwitch.checked = true;
+                    
                 }
                 else{
                     toggleSwitch.checked = false;
@@ -78,19 +80,146 @@ async function getSystemID() {
 }
 getSystemID();
 
+// Lấy dữ liệu lưu từ cookie
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
+//Lấy trạng thái của toggle
+async function updateToggleStatus(status) {
+    const apiUrl = "http://localhost:8080/api/updateToggleStatus"; // Thay URL này bằng URL của API thực tế
+    const email = document.getElementById('emailReceive').value;
+    const updateInfo = {
+        status: status,
+        maHeThong: getCookie('systemID')
+    };
+    try {
+        const response = await fetch(apiUrl, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ status: updateInfo })
+        });
+        if (response.ok) {
+            const data = await response.json();
+            if (data.status == "success") {
+                //Cập nhật trạng thái toggle về thành công (test)
+                console.log("Cập nhật trạng thái toggle thành công!");
+            } else {
+                // Cập nhật trạng thái toggle thát bại (test)
+                console.log("Cập nhật trạng thái toggle thất bại.");
+            }
+        } else {
+            console.error("Request failed:", response.status);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+
 // Bắt sự kiện thay đổi trạng thái checkbox
 toggleSwitch.addEventListener('change', function () {
+    let status;
     if (this.checked) {
         // Nếu checkbox được tích (bật)
-        console.log("Thông báo đã được bật");
-        // Thực hiện hành động khi bật (ví dụ: gửi thông báo)
+        console.log("Chức năng gửi tin nhắn đã được bật");
+        status = 1;
     } else {
         // Nếu checkbox không được tích (tắt)
-        console.log("Thông báo đã được tắt");
-        // Thực hiện hành động khi tắt (ví dụ: ngừng gửi thông báo)
+        console.log("Chức năng gửi tin nhắn đã được tắt");
+        status = 0;
+    }
+    // Cập nhật DB
+    updateToggleStatus(status);
+});
+
+//Cập nhật email nhận tin nhắn
+async function updateEmailReceive(email) {
+    const apiUrl = "http://localhost:8080/api/updateEmailReceive"; // Thay URL này bằng URL của API thực tế
+    const updateInfo = {
+        email: email,
+        maHeThong: getCookie('systemID')
+    };
+    try {
+        const response = await fetch(apiUrl, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ status: updateInfo })
+        });
+        if (response.ok) {
+            const data = await response.json();
+            if (data.status == "success") {
+                //Cập nhật email nhận thông báo về thành công (test)
+                console.log("Cập nhật email nhận thông báo thành công!");
+                emailDisplay.textContent = email;
+                emailForm.style.display = 'none';
+                emailDisplay.style.display = 'block';
+                changeEmailButton.style.display = 'inline-block';  // Hiển thị lại nút "Thay đổi"
+                // Hiển thị hộp thông báo thành công
+                showMessage('Email đã được cập nhật thành công!', 'success');
+            } else {
+                // Cập nhật email nhận thông báo thát bại (test)
+                console.log("Cập nhật email nhận thông báo thất bại.");
+            }
+        } else {
+            console.error("Request failed:", response.status);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+
+// Khi bấm vào nút thay đổi email
+const changeEmailButton = document.querySelector('.changeEmail');
+const emailDisplay = document.getElementById('emailDisplay');
+const emailForm = document.getElementById('emailForm');
+const saveEmailButton = document.querySelector('.saveEmail');
+const cancelChangeButton = document.querySelector('.cancelChange');
+const messageBox = document.getElementById('messageBox');
+
+// Khi bấm vào nút "Thay đổi", ẩn đi phần hiển thị email và nút "Thay đổi", hiển thị form nhập email mới
+changeEmailButton.addEventListener('click', function() {
+    emailDisplay.style.display = 'none';
+    changeEmailButton.style.display = 'none';  // Ẩn nút "Thay đổi"
+    emailForm.style.display = 'block';
+    messageBox.style.display = 'none';  // Ẩn hộp thông báo
+});
+
+// Khi bấm "Lưu", cập nhật email và quay lại giao diện ban đầu
+saveEmailButton.addEventListener('click', function() {
+    const newEmail = document.getElementById('newEmail').value;
+    // Kiểm tra email có đuôi @example hay không
+    if(!newEmail){
+        // Hiển thị hộp thông báo lỗi nếu email trống
+        showMessage('Vui lòng nhập email mới.', 'error');
+    } else if (!newEmail.endsWith('@gmail.com')) {
+        // Hiển thị hộp thông báo lỗi nếu email không có đuôi @example
+        showMessage('Email phải có đuôi "@example.com".', 'error');
+    } else {
+        updateEmailReceive(newEmail);
     }
 });
 
+// Khi bấm "Hủy", quay lại giao diện ban đầu mà không thay đổi gì
+cancelChangeButton.addEventListener('click', function() {
+    emailForm.style.display = 'none';
+    emailDisplay.style.display = 'block';
+    changeEmailButton.style.display = 'inline-block';  // Hiển thị lại nút "Thay đổi"
+    
+    // Ẩn hộp thông báo
+    messageBox.style.display = 'none';
+});
+
+// Hàm hiển thị hộp thông báo
+function showMessage(message, type) {
+    messageBox.style.display = 'block';
+    messageBox.textContent = message;
+    messageBox.className = type; // Áp dụng class "success" hoặc "error" cho hộp thông báo
+}
 
 // Đóng thông báo khi bấm ra ngoài modal
 window.addEventListener("click", function (event) {

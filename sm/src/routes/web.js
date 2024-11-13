@@ -1,13 +1,8 @@
 const express = require('express');
 const router = express.Router(); // dùng để định nghĩa route
-const {getHomepage, getABC, getInfo, getCreateUser, getUpdatePage, getIotHomePage, getPersonalPage, unlockByFinger, unlockByPassword, unlockHistory, getListFinger, getListOwner, addNewFinger, addNewFingerDB, deleteFinger, deleteFingerDB, updatePassword, updatePasswordDB, getListUser, getSystemID, getToggleStatus, getListDiary, getListAction} = require('../controllers/homeController');
+const {getIotHomePage, getPersonalPage, unlockByFinger, unlockByPassword, unlockHistory, getListFinger, getListOwner, addNewFinger, addNewFingerDB, deleteFinger, deleteFingerDB, updatePassword, updatePasswordDB, getListUser, getSystemID, getToggleStatus, updateToggleStatus, updateEmailReceive, getListDiary, getListAction} = require('../controllers/homeController');
 
-//test
-// router.get('/', getHomepage);
-router.post('/createuser', getInfo);
-router.post('/postCreateUser', getCreateUser);
-router.get('/abc', getABC);
-router.get('/update/:id', getUpdatePage);
+//Homepage
 router.get('/', getIotHomePage);
 router.get('/caNhan', getPersonalPage);
 
@@ -29,6 +24,8 @@ router.post('/api/updatePasswordDB', updatePasswordDB);
 router.get('/api/getListUser', getListUser);
 router.get('/api/arduino/getSystemID', getSystemID);
 router.post('/api/getToggleStatus', getToggleStatus);
+router.put('/api/updateToggleStatus', updateToggleStatus);
+router.put('/api/updateEmailReceive', updateEmailReceive);
 router.get('/api/getListDiary', getListDiary);
 router.get('/api/getListAction', getListAction);
 

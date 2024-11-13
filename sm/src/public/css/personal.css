@@ -171,9 +171,98 @@ button {
     display: none; /* Ẩn lớp phủ ban đầu */
 }
 
+
+/* Email nhận tin nhắn */
+#emailReceive {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Khoảng cách giữa h5 và span */
+    margin-bottom: 10px;
+}
+
+#emailReceive h5 {
+    margin: 0; /* Loại bỏ khoảng cách mặc định của h5 */
+    font-size: 17px;
+}
+
+#emailReceive span {
+    font-size: 16px;
+    color: #464545;
+}
+
+#emailReceive button {
+    margin: 0 10px; /* Khoảng cách giữa các nút */
+    padding: 5px 10px;
+    height: 30px;
+    font-size: 15px;
+    color: white;
+    background-color: #007BFF; /* Màu nền của nút */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+#emailReceive button:hover {
+    background-color: #0056b3; /* Màu khi di chuột qua nút */
+}
+
+#emailForm {
+    margin-top: 10px;
+}
+
+#emailForm h5 {
+    font-size: 17px;
+}
+#emailForm input {
+    width: 250px;   
+    padding: 8px;
+    font-size: 12px;
+    border-radius: 5px;
+    margin: 10px 0 20px 0;
+}
+
+#emailForm button {
+    margin: 0 5px; /* Khoảng cách giữa các nút */
+    padding: 5px 10px;
+    height: 30px;
+    font-size: 15px;
+    color: white;
+    background-color: #007BFF; /* Màu nền của nút */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#emailForm button:hover {
+    background-color: #0056b3; /* Màu khi di chuột qua nút */
+}
+
+/* Thông báo thành công hoặc lỗi khi nhập email */
+#messageBox {
+    margin-top: 15px;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+}
+
+.success {
+    background-color: #d4edda; /* Màu nền xanh nhạt */
+    color: #155724; /* Màu chữ xanh đậm */
+}
+
+.error {
+    background-color: #f8d7da; /* Màu nền đỏ nhạt */
+    color: #721c24; /* Màu chữ đỏ */
+}
+
 /* Style cho container của thông báo */
 .notification-container {
-    width: 300px;
+    width: 550px;
+    height: 280px;
     background-color: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 8px;
