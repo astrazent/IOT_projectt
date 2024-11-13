@@ -1,6 +1,6 @@
 FROM node:14-alpine
 
-WORKDIR /smartUnlock
+WORKDIR /sm
 
 COPY package*.json ./
 
