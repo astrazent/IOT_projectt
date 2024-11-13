@@ -121,7 +121,7 @@ VALUES
     ('Hệ thống cửa kho', FALSE, LPAD(FLOOR(RAND() * 10000), 4, '0'), DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 'kho@gmail.com', 4, 4),
     ('Hệ thống cửa gara', TRUE, LPAD(FLOOR(RAND() * 10000), 4, '0'), DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 'gara@gmail.com', 5, 5);
 
---Bảng nhật ký truy cập
+-- Bảng nhật ký truy cập
 INSERT INTO LichSuMoCua (thoiGian, loaiTruyCap, thanhCong, maHeThong, maNguoiDung) VALUES
 ('2024-11-10 08:30:00', 'mật khẩu', TRUE, 1, 1),
 ('2024-11-10 09:00:15', 'vân tay', TRUE, 1, 2),

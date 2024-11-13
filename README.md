@@ -16,7 +16,7 @@ B5:
 B5: Config variable environment cho docker
 
 ## Usage
-Mở DBeaver và migration cho DB từ file database.sql
+Mở DBeaver và migration cho DB từ file importDB.sql
 
 Nếu chạy trên môi trường development:
 
