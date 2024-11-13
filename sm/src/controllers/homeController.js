@@ -132,11 +132,31 @@ const getListOwner = async (req, res) => {
         data: results,
     });
 };
-let i = 10; // bắt đầu từ 11 vì dữ liệu mẫu kết thúc ở 10 (test)
+
+async function getFingerID_cache() {
+    try {
+        const [rows] = await connection.query(`
+            SELECT vanTayID FROM VanTay
+            ORDER BY vanTayID DESC
+            LIMIT 1;
+        `);
+
+        // Kiểm tra xem có dữ liệu hay không
+        if (rows.length > 0) {
+            return rows[0].vanTayID; // Trả về `vanTayID` từ hàng đầu tiên trong kết quả
+        } else {
+            return null; // Không có dữ liệu nào trong bảng
+        }
+    } catch (error) {
+        console.error("Lỗi khi lấy vanTayID:", error);
+        throw error; // Đẩy lỗi lên để xử lý nếu cần
+    }
+}
 const addNewFinger = async (req, res) => {
     console.log("delay respone 3 second...");
     const result = await delayedFunction();
-    i += 1;
+    let i = await getFingerID_cache();
+    i = i + 1;
     return res.json({ status: "success", message: "Add fingerprint success!", data: [{ fingerprintID: i }] });
 };
 const addNewFingerDB = async (req, res) => {
