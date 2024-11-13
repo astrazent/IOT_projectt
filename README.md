@@ -8,11 +8,16 @@ B3: Mở terminal trong thư mục sm và thực hiện:
 ### npm install 
 
 B4: 
+- Cài đặt DBeaver: https://dbeaver.io/
+
+B5: 
 - Cài docker: https://www.docker.com/
 
 B5: Config variable environment cho docker
 
 ## Usage
+Mở DBeaver và migration cho DB từ file database.sql
+
 Nếu chạy trên môi trường development:
 
 B1: config .env trong thư mục sm:
