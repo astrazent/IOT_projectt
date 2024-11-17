@@ -90,9 +90,10 @@ function getCookie(name) {
 async function updateToggleStatus(status) {
     const apiUrl = "http://localhost:8080/api/updateToggleStatus"; // Thay URL này bằng URL của API thực tế
     const email = document.getElementById('emailReceive').value;
+    const systemID = 1;
     const updateInfo = {
         status: status,
-        maHeThong: getCookie('systemID')
+        maHeThong: systemID
     };
     try {
         const response = await fetch(apiUrl, {
@@ -138,9 +139,10 @@ toggleSwitch.addEventListener('change', function () {
 //Cập nhật email nhận tin nhắn
 async function updateEmailReceive(email) {
     const apiUrl = "http://localhost:8080/api/updateEmailReceive"; // Thay URL này bằng URL của API thực tế
+    const systemID = 1;
     const updateInfo = {
         email: email,
-        maHeThong: getCookie('systemID')
+        maHeThong: systemID
     };
     try {
         const response = await fetch(apiUrl, {

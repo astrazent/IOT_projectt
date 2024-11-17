@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router(); // dùng để định nghĩa route
-const {getIotHomePage, getPersonalPage, unlockByFinger, unlockByPassword, unlockHistory, getListFinger, getListOwner, addNewFinger, addNewFingerDB, deleteFinger, deleteFingerDB, updatePassword, updatePasswordDB, getListUser, getSystemID, getToggleStatus, updateToggleStatus, updateEmailReceive, getListDiary, getListAction} = require('../controllers/homeController');
+const {getIotHomePage, getPersonalPage, unlockByFinger, unlockByPassword, unlockHistory, getListFinger, getListOwner, addNewFinger, addNewFingerDB, deleteFinger, deleteFingerDB, updatePassword, updatePasswordDB, getListUser, getSystemID, getToggleStatus, updateToggleStatus, updateEmailReceive, getListDiary, getListAction, test} = require('../controllers/homeController');
 
 //Homepage
 router.get('/', getIotHomePage);

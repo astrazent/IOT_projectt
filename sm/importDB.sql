@@ -114,7 +114,7 @@ VALUES
 -- Bảng hệ thống khoá
 INSERT INTO HeThongKhoa 
     (tenHeThong, dangHoatDong, matKhauMaHoa, lanThayDoiMKCuoi, thongBaoTuXa, emailNhanTB, heThongID, maCua) 
-VALUES
+VALUES -- Mật khẩu: 2225
     ('Hệ thống cửa chính', TRUE, '$2a$08$gEp8x1Ae3x3rCkHBfueEyeeMh/cUJKtJW.fFZHy/4bIOWzrR5Pjmm', DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 1, 'phannguyen2300@gmail.com', 1, 1),
     ('Hệ thống cửa phụ', FALSE, LPAD(FLOOR(RAND() * 10000), 4, '0'), DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 'phu@gmail.com', 2, 2),
     ('Hệ thống cửa sân vườn', TRUE, LPAD(FLOOR(RAND() * 10000), 4, '0'), DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 'vanphong@gmail.com', 3, 3),

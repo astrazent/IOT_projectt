@@ -161,6 +161,7 @@ const addNewFinger = async (req, res) => {
 };
 const addNewFingerDB = async (req, res) => {
     const { owner, ownerSelect, ownerStatus, gender, age, phone, email, hand, finger, fingerprintID } = req.body.userInfo;
+    const systemID = 1;
     // Lấy kết nối từ pool
     const nt = await connection.getConnection();
     try {
@@ -174,7 +175,6 @@ const addNewFingerDB = async (req, res) => {
             // Lấy mã người dùng khi biết vanTayID
             userID = ownerSelect;
         }
-
         //Kiểm tra xem bàn tay, vân tay, người dùng có bị trùng lặp nhau hay không
         const [checkFinger] = await nt.execute(
             `SELECT 
@@ -192,7 +192,7 @@ const addNewFingerDB = async (req, res) => {
         }
         await nt.execute(`INSERT INTO VanTay (tenBanTay, ngayDangKy, vanTay, vanTayID, maNguoiDung) VALUES (?, ?, ?, ?, ?)`, [hand, timeConvert(), finger, fingerprintID, userID]);
         //Thêm lịch sử thao tác
-        const [history] = await nt.execute(`INSERT INTO LichSuThaoTac (ngayThayDoi, noiDungThayDoi, maNguoiDung, maHeThong) VALUES (?, ?, ?, ?)`, [timeConvert(), "Thêm vân tay mới", null, req.cookies.systemID]);
+        const [history] = await nt.execute(`INSERT INTO LichSuThaoTac (ngayThayDoi, noiDungThayDoi, maNguoiDung, maHeThong) VALUES (?, ?, ?, ?)`, [timeConvert(), "Thêm vân tay mới", null, systemID]);
         if (history.length === 0) {
             throw new Error("Cập nhật lịch sử thao tác thất bại.");
         }
@@ -214,6 +214,7 @@ const deleteFinger = async (req, res) => {
 };
 const deleteFingerDB = async (req, res) => {
     const { fingerprintId } = req.body;
+    const systemID = 1;
     // Lấy kết nối từ pool
     const nt = await connection.getConnection();
     let deleteFingerprint;
@@ -223,7 +224,7 @@ const deleteFingerDB = async (req, res) => {
         deleteFingerprint = await nt.execute(`DELETE FROM VanTay WHERE vanTayID = ?;`, [fingerprintId]);
 
         //Thêm lịch sử thao tác
-        const [history] = await nt.execute(`INSERT INTO LichSuThaoTac (ngayThayDoi, noiDungThayDoi, maNguoiDung, maHeThong) VALUES (?, ?, ?, ?)`, [timeConvert(), "Xoá vân tay trong hệ thống", null, req.cookies.systemID]);
+        const [history] = await nt.execute(`INSERT INTO LichSuThaoTac (ngayThayDoi, noiDungThayDoi, maNguoiDung, maHeThong) VALUES (?, ?, ?, ?)`, [timeConvert(), "Xoá vân tay trong hệ thống", null, systemID]);
         if (history.length === 0) {
             throw new Error("Cập nhật lịch sử thao tác thất bại.");
         }
@@ -249,6 +250,7 @@ const updatePassword = async (req, res) => {
 };
 const updatePasswordDB = async (req, res) => {
     let { maHeThong, oldPassword, newPassword } = req.body.passwordInfo;
+    const systemID = 1;
     // Lấy kết nối từ pool
     const nt = await connection.getConnection();
     try {
@@ -268,7 +270,7 @@ const updatePasswordDB = async (req, res) => {
         const data = "Mật khẩu hệ thống: " + newPassword;
         newPassword = await bcrypt.hash(newPassword, 8);
         //Cập nhật mật khẩu
-        const [result] = await nt.execute("UPDATE HeThongKhoa SET matKhauMaHoa = ?, lanThayDoiMKCuoi = NOW() WHERE maHeThong = ?", [newPassword, maHeThong]);
+        const [result] = await nt.execute("UPDATE HeThongKhoa SET matKhauMaHoa = ?, lanThayDoiMKCuoi = ? WHERE maHeThong = ?", [newPassword, timeConvert(), maHeThong]);
 
         // Lưu dữ liệu vào file 'output.txt'
         fs.writeFile("password_IOT.txt", data, (err) => {
@@ -280,7 +282,7 @@ const updatePasswordDB = async (req, res) => {
         });
 
         //Thêm lịch sử thao tác
-        const [history] = await nt.execute(`INSERT INTO LichSuThaoTac (ngayThayDoi, noiDungThayDoi, maNguoiDung, maHeThong) VALUES (?, ?, ?, ?)`, [timeConvert(), "Cập nhật mật khẩu mới", null, req.cookies.systemID]);
+        const [history] = await nt.execute(`INSERT INTO LichSuThaoTac (ngayThayDoi, noiDungThayDoi, maNguoiDung, maHeThong) VALUES (?, ?, ?, ?)`, [timeConvert(), "Cập nhật mật khẩu mới", null, systemID]);
         if (history.length === 0) {
             throw new Error("Cập nhật lịch sử thao tác thất bại.");
         }
@@ -309,11 +311,11 @@ const getListUser = async (req, res) => {
 };
 const getSystemID = async (req, res) => {
     const systemID = 1;
-    const cookiesOptions = {
-        expires: new Date(Date.now() + process.env.COOKIES_EXPIRE * 86400 * 1000),
-        httpOnly: false //Không dùng httpOnly mới có thể lấy từ phía frotend
-    }
-    res.cookie("systemID", systemID, cookiesOptions);
+    // const cookiesOptions = {
+    //     expires: new Date(Date.now() + process.env.COOKIES_EXPIRE * 86400 * 1000),
+    //     httpOnly: false //Không dùng httpOnly mới có thể lấy từ phía frotend
+    // }
+    // res.cookie("systemID", systemID, cookiesOptions);
     return res.json({ status: "success", message: "Get systemID success!", data: [{ maHeThong: systemID }] });
 };
 const getToggleStatus = async (req, res) => {
@@ -328,12 +330,13 @@ const getToggleStatus = async (req, res) => {
 };
 const updateToggleStatus = async (req, res) => {
     const { status, maHeThong } = req.body.status;
+    const systemID = 1;
     const [results, fields] = await connection.query(`
         UPDATE HeThongKhoa SET thongBaoTuXa = ? WHERE maHeThong = ?
         `, [status, maHeThong]); // dùng `` được phép xuống dòng
     
     //Thêm lịch sử thao tác
-    const [history] = await connection.execute(`INSERT INTO LichSuThaoTac (ngayThayDoi, noiDungThayDoi, maNguoiDung, maHeThong) VALUES (?, ?, ?, ?)`, [timeConvert(), "Bật/tắt chức năng gửi tin nhắn", null, req.cookies.systemID]);
+    const [history] = await connection.execute(`INSERT INTO LichSuThaoTac (ngayThayDoi, noiDungThayDoi, maNguoiDung, maHeThong) VALUES (?, ?, ?, ?)`, [timeConvert(), "Bật/tắt chức năng gửi tin nhắn", null, systemID]);
     if (history.length === 0) {
         throw new Error("Cập nhật lịch sử thao tác thất bại.");
     }
@@ -345,11 +348,12 @@ const updateToggleStatus = async (req, res) => {
 };
 const updateEmailReceive = async (req, res) => {
     const { email, maHeThong } = req.body.status;
+    const systemID = 1;
     const [results, fields] = await connection.query(`
         UPDATE HeThongKhoa SET emailNhanTB = ? WHERE maHeThong = ?
         `, [email, maHeThong]); // dùng `` được phép xuống dòng
     
-    const [history] = await connection.execute(`INSERT INTO LichSuThaoTac (ngayThayDoi, noiDungThayDoi, maNguoiDung, maHeThong) VALUES (?, ?, ?, ?)`, [timeConvert(), "Cập nhật email nhận tin nhắn", null, req.cookies.systemID]);
+    const [history] = await connection.execute(`INSERT INTO LichSuThaoTac (ngayThayDoi, noiDungThayDoi, maNguoiDung, maHeThong) VALUES (?, ?, ?, ?)`, [timeConvert(), "Cập nhật email nhận tin nhắn", null, systemID]);
     if (history.length === 0) {
         throw new Error("Cập nhật lịch sử thao tác thất bại.");
     }
