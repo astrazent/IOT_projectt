@@ -1,7 +1,9 @@
 const connection = require("../config/database");
 const bcrypt = require("bcryptjs");
+const { timeStamp } = require("console");
 const fs = require("fs");
-
+const { fetch } = require('undici'); //cho phép thiết lập timeout
+let serverIP = "http://172.20.10.2"; // Địa chỉ IP của ESP8266 
 //Homepage
 const getIotHomePage = async (req, res) => {
     return res.render("iot.ejs");
@@ -34,14 +36,56 @@ const timeConvert = () => {
     return formattedDateTime;
 };
 const unlockByFinger = async (req, res) => {
-    console.log("delay respone 3 second...");
-    const result = await delayedFunction();
-    return res.json({ status: "success", message: "Door unlocked!", data: [{ fingerprintID: 1, dateTime: timeConvert(), systemID: 1 }] });
+    // Đoạn mã JavaScript dùng fetch để gửi yêu cầu GET
+    const apiUrl = serverIP + "/fingerprint"; // Thay URL này bằng URL của API thực tế
+    try {
+        const response = await fetch(apiUrl, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        if (response.ok) {
+            const data = await response.json();
+            if (data.status == "success") {
+                return res.json({ status: "success", message: "Door unlocked!", data: [{ fingerprintID: 1, dateTime: timeConvert(), systemID: 1 }] });
+            } else {
+                return res.json({ status: "error", message: "Unlock fail."});
+            }
+        } else {
+            console.error("Request failed:", response.status);
+            return res.json({ status: "error", message: "Unlock fail."});
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        return res.json({ status: "error", message: "Unlock fail."});
+    }
 };
 const unlockByPassword = async (req, res) => {
-    console.log("delay respone 3 second...");
-    const result = await delayedFunction();
-    return res.json({ status: "success", message: "Door unlocked!", data: [{ fingerprintID: null, dateTime: timeConvert(), systemID: 1 }] });
+    // Đoạn mã JavaScript dùng fetch để gửi yêu cầu GET
+    const apiUrl = serverIP + "/password"; // Thay URL này bằng URL của API thực tế
+    try {
+        const response = await fetch(apiUrl, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        if (response.ok) {
+            const data = await response.json();
+            if (data.status == "success") {
+                return res.json({ status: "success", message: "Door unlocked!", data: [{ fingerprintID: null, dateTime: timeConvert(), systemID: 1 }] });
+            } else {
+                return res.json({ status: "error", message: "Unlock fail."});
+            }
+        } else {
+            console.error("Request failed:", response.status);
+            return res.json({ status: "error", message: "Unlock fail."});
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        return res.json({ status: "error", message: "Unlock fail."});
+    }
 };
 const unlockHistory = async (req, res) => {
     const { unlockStatus, unlockType, fingerprintID, timestamp, systemID } = req.body;
@@ -133,31 +177,59 @@ const getListOwner = async (req, res) => {
     });
 };
 
-async function getFingerID_cache() {
+async function increaseID() {
     try {
-        const [rows] = await connection.query(`
-            SELECT vanTayID FROM VanTay
-            ORDER BY vanTayID DESC
+        // Thực hiện truy vấn để lấy `vanTayID` của hàng cuối cùng
+        const [results] = await connection.query(`
+            SELECT vanTayID 
+            FROM VanTay 
+            ORDER BY maVanTay DESC 
             LIMIT 1;
         `);
+        
+        // Kiểm tra xem kết quả có dữ liệu hay không
+        let id = results.length > 0 ? results[0].vanTayID : 0;
 
-        // Kiểm tra xem có dữ liệu hay không
-        if (rows.length > 0) {
-            return rows[0].vanTayID; // Trả về `vanTayID` từ hàng đầu tiên trong kết quả
-        } else {
-            return null; // Không có dữ liệu nào trong bảng
-        }
+        // Tăng giá trị `id` lên 1
+        id += 1;
+        return id;
     } catch (error) {
-        console.error("Lỗi khi lấy vanTayID:", error);
-        throw error; // Đẩy lỗi lên để xử lý nếu cần
+        console.error('Error fetching vanTayID:', error);
+        throw error; // Ném lỗi để xử lý bên ngoài nếu cần
     }
 }
 const addNewFinger = async (req, res) => {
-    console.log("delay respone 3 second...");
-    const result = await delayedFunction();
-    let i = await getFingerID_cache();
-    i = i + 1;
-    return res.json({ status: "success", message: "Add fingerprint success!", data: [{ fingerprintID: i }] });
+    let id;
+    try {
+        id = await increaseID();
+        console.log(id);
+    } catch (error) {
+        console.error("Error:", error);
+    }
+    // Đoạn mã JavaScript dùng fetch để gửi yêu cầu GET
+    const apiUrl = serverIP + "/addNewFingerprint?id=" + id; // Thay URL này bằng URL của API thực tế
+    try {
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            if (data.status == "success") {
+                return res.json({ status: "success", message: "Add fingerprint success!", data: [{ fingerprintID: id }] });
+            } else {
+                return res.json({ status: "error", message: "Add fingerprint fail."});
+            }
+        } else {
+            console.error("Request failed:", response.status);
+            return res.json({ status: "error", message: "Add fingerprint fail."});
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        return res.json({ status: "error", message: "Add fingerprint fail."});
+    }
 };
 const addNewFingerDB = async (req, res) => {
     const { owner, ownerSelect, ownerStatus, gender, age, phone, email, hand, finger, fingerprintID } = req.body.userInfo;
@@ -208,9 +280,31 @@ const addNewFingerDB = async (req, res) => {
     return res.json({ status: "success", message: "Add fingerprint to DB success!" });
 };
 const deleteFinger = async (req, res) => {
-    console.log("delay respone 3 second...");
-    const result = await delayedFunction();
-    return res.json({ status: "success", message: "Delete fingerprint success!" });
+    const { fingerprintId } = req.body;
+    // Đoạn mã JavaScript dùng fetch để gửi yêu cầu POST
+    const apiUrl = serverIP + "/deleteFingerprint?id=" + fingerprintId; // Thay URL này bằng URL của API thực tế
+    try {
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            if (data.status == "success") {
+                return res.json({ status: "success", message: "Delete fingerprint success!" });
+            } else {
+                return res.json({ status: "error", message: "Delete fingerprint fail." });
+            }
+        } else {
+            console.error("Request failed:", response.status);
+            return res.json({ status: "error", message: "Delete fingerprint fail." });
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        return res.json({ status: "error", message: "Add fingerprint fail."});
+    }
 };
 const deleteFingerDB = async (req, res) => {
     const { fingerprintId } = req.body;
@@ -244,9 +338,31 @@ const deleteFingerDB = async (req, res) => {
     }
 };
 const updatePassword = async (req, res) => {
-    console.log("delay respone 3 second...");
-    const result = await delayedFunction();
-    return res.json({ status: "success", message: "Update password success!", data: [{ maHeThong: 1 }] });
+    const {oldPassword, newPassword} = req.body;
+    // Đoạn mã JavaScript dùng fetch để gửi yêu cầu POST
+    const apiUrl = serverIP + "/changePassword?currentPassword=" + oldPassword + "&newPassword=" + newPassword; // Thay URL này bằng URL của API thực tế
+    try {
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            if (data.status == "success") {
+                return res.json({ status: "success", message: "Update password success!", data: [{ maHeThong: 1 }] });
+            } else {
+                return res.json({ status: "error", message: "Update password fail."});
+            }
+        } else {
+            console.error("Request failed:", response.status);
+            return res.json({ status: "error", message: "Update password fail."});
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        return res.json({ status: "error", message: "Update password fail."});
+    }
 };
 const updatePasswordDB = async (req, res) => {
     let { maHeThong, oldPassword, newPassword } = req.body.passwordInfo;
@@ -311,11 +427,6 @@ const getListUser = async (req, res) => {
 };
 const getSystemID = async (req, res) => {
     const systemID = 1;
-    // const cookiesOptions = {
-    //     expires: new Date(Date.now() + process.env.COOKIES_EXPIRE * 86400 * 1000),
-    //     httpOnly: false //Không dùng httpOnly mới có thể lấy từ phía frotend
-    // }
-    // res.cookie("systemID", systemID, cookiesOptions);
     return res.json({ status: "success", message: "Get systemID success!", data: [{ maHeThong: systemID }] });
 };
 const getToggleStatus = async (req, res) => {
@@ -386,9 +497,55 @@ const getListAction = async (req, res) => {
     });
 };
 
+const getListSystem = async (req, res) => {
+    const [results, fields] = await connection.query(`
+        SELECT tenHeThong, diaChiIP
+        FROM HeThongKhoa;
+        `); // dùng `` được phép xuống dòng
+    return res.json({
+        status: "success",
+        message: "Get list action success!",
+        data: results,
+    });
+};
+const updateIP = async (req, res) => {
+    serverIP = req.body.ip;
+    return res.json({
+        status: "success",
+        message: "Update IP success!",
+    });
+};
+const heartBeat = async (req, res) => {
+    // Đoạn mã JavaScript dùng fetch để gửi yêu cầu POST
+    const apiUrl = serverIP + "/heartbeat"; // Thay URL này bằng URL của API thực tế
+    try {
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ send_from_client: "localhost:8080" })
+        });
+        if (response.ok) {
+            const data = await response.json();
+            if (data.status == "success") {
+                return res.json({ status: "success", message: "Device actived!" });
+            }
+        } else {
+            console.error("Request failed:", response.status);
+            return res.json({ status: "error", message: "Device offline.", timestamp: timeConvert()});
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        return res.json({ status: "error", message: "Device offline.", timestamp: timeConvert()});
+    }
+};
+const test = async (req, res) => {
+};
 module.exports = {
     getIotHomePage,
     getPersonalPage,
+    test,
     unlockByFinger,
     unlockByPassword,
     unlockHistory,
@@ -406,5 +563,8 @@ module.exports = {
     updateToggleStatus,
     updateEmailReceive,
     getListDiary,
-    getListAction
+    getListAction,
+    getListSystem,
+    updateIP, 
+    heartBeat
 };

@@ -4,6 +4,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Mở cửa thông minh</title>
         <link rel="stylesheet" href="/css/iot.css" />
+        <link rel="stylesheet" href="/css/systemManagement.css">
         <link rel="stylesheet" href="/css/popup_control.css" />
         <link rel="stylesheet" href="/css/notification.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
@@ -33,6 +34,13 @@
         </nav>
         <div class="container">
             <h3 class="title">Mở cửa thông minh</h3>
+            <!-- Lựa chọn hệ thống -->
+            <div class="custom-select">
+                <button class="select-btn">Chọn hệ thống</button>
+                <div class="select-dropdown">
+                </div>
+            </div>
+            <!-- ------------- Nút chức năng -------------------------------- -->
             <div class="box-btn">
                 <button id="buttonA" class="show-message-button btn">Mở cửa</button>
                 <button id="buttonB" class="btn">Thêm vân tay</button>
@@ -194,5 +202,6 @@
         <!-- Để hiển thị trạng thái gửi email -->
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
         <script src="/js/iot.js"></script>
+        <script src="/js/systemManagement.js"></script>
     </body>
 </html>

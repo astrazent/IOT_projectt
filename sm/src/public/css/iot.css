@@ -97,12 +97,13 @@ body {
 
 .container .title{
     text-align: center;
+    margin-bottom: 20px;
     font-size: 30;
 }
 
 /* CSS các nút bấm */
 .box-btn{
-    margin-top: 200px;
+    margin-top: 170px;
     display: grid;             /* Sử dụng Grid Layout */
     grid-template-columns: repeat(2, 1fr); /* 2 cột đều nhau */
     gap: 20px;                /* Khoảng cách giữa các nút */

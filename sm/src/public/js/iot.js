@@ -183,7 +183,6 @@ const sendEmail = (fromName, emailUnlock, method, toEmail = "phannguyen2300@gmai
         from_systemName: systemName, // tên hệ thống
         message: message, // Nội dung tin nhắn
     };
-    console.log(templateParams);
     // Gửi email với Service ID, Template ID, và các thông tin form
     emailjs.send("service_yka40im", "template_fi68hwg", templateParams).then(
         function () {
@@ -328,8 +327,8 @@ function populateTable(data) {
     const tableBody = document.getElementById("fingerprintTable").getElementsByTagName("tbody")[0];
     tableBody.innerHTML = ""; // Xóa nội dung cũ (nếu có)
 
-    // Sắp xếp data theo thứ tự tên chuSoHuu
-    data.sort((a, b) => a.chuSoHuu.localeCompare(b.chuSoHuu));
+    // Sắp xếp data theo thứ tự vanTayID tăng dần
+    data.sort((a, b) => a.vanTayID - b.vanTayID);
 
     data.forEach((item, index) => {
         const row = document.createElement("tr");
@@ -339,7 +338,7 @@ function populateTable(data) {
 
         // Tạo ô cho số thứ tự
         const serialCell = document.createElement("td");
-        serialCell.textContent = index + 1; // Số thứ tự bắt đầu từ 1
+        serialCell.textContent = index + 1;
         row.appendChild(serialCell);
 
         // Tạo ô cho chuSoHuu
@@ -836,7 +835,6 @@ showMessageButtons3.forEach((button) => {
 // Đóng thông báo khi bấm nút đóng
 closeButton3.addEventListener("click", function () {
     modal3.style.display = "none"; // Ẩn modal
-    console.log("check");
 });
 
 //xử lý sự kiện thay đổi mật khẩu
