@@ -32,8 +32,9 @@ CREATE TABLE HeThongKhoa (
     maHeThong INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     tenHeThong VARCHAR(100) NOT NULL,      -- Tên chủ sở hữu
     dangHoatDong BOOLEAN,
-    matKhauMaHoa VARCHAR(255),              -- Thêm trường mật khẩu đã mã hóa
-    lanThayDoiMKCuoi DATETIME,                    -- Ngày thay đổi mật khẩu cuối
+    thongBaoTTHD BOOLEAN,                  -- Thông báo trạng thái hoạt động
+    matKhauMaHoa VARCHAR(255),             -- Thêm trường mật khẩu đã mã hóa
+    lanThayDoiMKCuoi DATETIME,             -- Ngày thay đổi mật khẩu cuối
     thongBaoTuXa BOOLEAN,
     emailNhanTB VARCHAR(255),
     heThongID INT NOT NULL,
@@ -113,13 +114,13 @@ VALUES
 
 -- Bảng hệ thống khoá
 INSERT INTO HeThongKhoa 
-    (tenHeThong, dangHoatDong, matKhauMaHoa, lanThayDoiMKCuoi, thongBaoTuXa, emailNhanTB, heThongID, maCua) 
+    (tenHeThong, dangHoatDong, thongBaoTTHD, matKhauMaHoa, lanThayDoiMKCuoi, thongBaoTuXa, emailNhanTB, heThongID, maCua) 
 VALUES
-    ('Hệ thống cửa chính', TRUE, '$2a$08$gEp8x1Ae3x3rCkHBfueEyeeMh/cUJKtJW.fFZHy/4bIOWzrR5Pjmm', DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 1, 'phannguyen2300@gmail.com', 1, 1),
-    ('Hệ thống cửa phụ', FALSE, LPAD(FLOOR(RAND() * 10000), 4, '0'), DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 'phu@gmail.com', 2, 2),
-    ('Hệ thống cửa sân vườn', TRUE, LPAD(FLOOR(RAND() * 10000), 4, '0'), DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 'vanphong@gmail.com', 3, 3),
-    ('Hệ thống cửa kho', FALSE, LPAD(FLOOR(RAND() * 10000), 4, '0'), DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 'kho@gmail.com', 4, 4),
-    ('Hệ thống cửa gara', TRUE, LPAD(FLOOR(RAND() * 10000), 4, '0'), DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 'gara@gmail.com', 5, 5);
+    ('Hệ thống cửa chính', TRUE, TRUE, '$2a$08$gEp8x1Ae3x3rCkHBfueEyeeMh/cUJKtJW.fFZHy/4bIOWzrR5Pjmm', DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 1, 'phannguyen2300@gmail.com', 1, 1),
+    ('Hệ thống cửa phụ', FALSE, FALSE, LPAD(FLOOR(RAND() * 10000), 4, '0'), DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 'phannguyen2300@gmail.com', 2, 2),
+    ('Hệ thống cửa sân vườn', FALSE, FALSE, LPAD(FLOOR(RAND() * 10000), 4, '0'), DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 'phannguyen2300@gmail.com', 3, 3),
+    ('Hệ thống cửa kho', FALSE, FALSE, LPAD(FLOOR(RAND() * 10000), 4, '0'), DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 'phannguyen2300@gmail.com', 4, 4),
+    ('Hệ thống cửa gara', FALSE, FALSE, LPAD(FLOOR(RAND() * 10000), 4, '0'), DATE_ADD('2024-01-01 08:00:00', INTERVAL FLOOR(RAND() * 1000) DAY_SECOND), 0, 'phannguyen2300@gmail.com', 5, 5);
 
 -- Bảng nhật ký truy cập
 INSERT INTO LichSuMoCua (thoiGian, loaiTruyCap, thanhCong, maHeThong, maNguoiDung) VALUES

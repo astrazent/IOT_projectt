@@ -135,7 +135,20 @@ async function getToggleStatus(id) {
         console.error("Error:", error);
     }
 }
+// Hàm lưu cookie (session cookie)
+function setCookieIOT(name, value) {
+    document.cookie = `${name}=${value}; path=/`; // Không đặt thời gian hết hạn -> tự động hết khi đóng trình duyệt
+}
 
+// Hàm lấy giá trị cookie
+function getCookieIOT(name) {
+    const cookies = document.cookie.split('; ');
+    for (const cookie of cookies) {
+        const [key, val] = cookie.split('=');
+        if (key === name) return val;
+    }
+    return null;
+}
 //Lấy trạng thái của toggle
 async function getSystemID() {
     const apiUrl = "http://localhost:8080/api/arduino/getSystemID"; // Thay URL này bằng URL của API thực tế
@@ -152,6 +165,7 @@ async function getSystemID() {
                 //Lấy mã hệ thống về thành công (test)
                 console.log("lấy mã hệ thống thành công!");
                 getToggleStatus(data.data[0].maHeThong);
+                setCookieIOT("systemID", data.data[0].maHeThong);
             } else {
                 // Lấy mã hệ thống thát bại (test)
                 console.log("lấy mã hệ thống thất bại.");
@@ -163,7 +177,10 @@ async function getSystemID() {
         console.error("Error:", error);
     }
 }
-getSystemID();
+
+if(getCookieIOT("systemID")){
+    getToggleStatus(getCookieIOT("systemID"));
+}
 
 const sendEmail = (fromName, emailUnlock, method, toEmail = "phannguyen2300@gmail.com", systemName, message = getCurrentTime()) => {
     // Khởi tạo EmailJS với User ID của bạn
@@ -229,7 +246,7 @@ modalFinger.addEventListener("click", function () {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                },
+                }
             });
             if (response.ok) {
                 const data = await response.json();
@@ -238,7 +255,7 @@ modalFinger.addEventListener("click", function () {
                 deleteElement("modal2-confirmationContainer");
                 openNoti.style.display = "none";
                 overlay.style.display = "none";
-                const userInfo = await unlockHistory(data.status, "vân tay", data.data[0].fingerprintID, data.data[0].dateTime, data.data[0].systemID);
+                const userInfo = await unlockHistory(data.status, "vân tay", data.data[0].fingerprintID, data.data[0].dateTime, getCookieIOT("systemID"));
                 if (data.status == "success") {
                     //Khi mở cửa thành công
                     if (status_Receive) {
@@ -284,7 +301,7 @@ modalPass.addEventListener("click", function () {
                 deleteElement("modal2-confirmationContainer");
                 openNoti.style.display = "none";
                 overlay.style.display = "none";
-                const systemInfo = await unlockHistory(data.status, "mật khẩu", data.data[0].fingerprintID, data.data[0].dateTime, data.data[0].systemID);
+                const systemInfo = await unlockHistory(data.status, "mật khẩu", data.data[0].fingerprintID, data.data[0].dateTime, getCookieIOT("systemID"));
                 if (data.status == "success") {
                     //Khi mở cửa thành công
                     if (status_Receive) {
@@ -459,7 +476,7 @@ async function deleteFingerDB() {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ fingerprintId: fingerprintID_delete }),
+            body: JSON.stringify({ fingerprintId: fingerprintID_delete, maHeThong: getCookieIOT("systemID") }),
         });
         if (response.ok) {
             const data = await response.json();
@@ -697,7 +714,7 @@ document.getElementById("infoForm").addEventListener("submit", function (event) 
                     //Lấy id vân tay vừa lưu từ arduino
                     const fingerprintID = data.data[0].fingerprintID;
                     // Lưu vào database
-                    addNewFingerDB(fingerprintID);
+                    await addNewFingerDB(fingerprintID);
                 } else {
                     // Thêm vân tay vào arduino thất bại (test)
                     console.log("thêm vân tay vào arduino thất bại.");
@@ -739,6 +756,7 @@ document.getElementById("infoForm").addEventListener("submit", function (event) 
 
     async function addNewFingerDB(fingerprintID) {
         const successNotification = document.getElementById("successNotification");
+        const systemID = getCookieIOT("systemID")
         // Đoạn mã JavaScript dùng fetch để gửi yêu cầu POST
         const apiUrl = "http://localhost:8080/api/addNewFingerDB"; // Thay URL này bằng URL của API thực tế
         let userInfo;
@@ -754,6 +772,7 @@ document.getElementById("infoForm").addEventListener("submit", function (event) 
                 hand: hand,
                 finger: finger,
                 fingerprintID: fingerprintID,
+                maHeThong: systemID
             };
         } else {
             userInfo = {
@@ -763,6 +782,7 @@ document.getElementById("infoForm").addEventListener("submit", function (event) 
                 hand: hand,
                 finger: finger,
                 fingerprintID: fingerprintID,
+                maHeThong: systemID
             };
         }
         try {
@@ -889,7 +909,7 @@ async function updatePassword(oldPassword, newPassword, notification) {
         const data = await response.json();
         // Xử lý phản hồi từ API
         if (data.status == "success") {
-            updatePasswordDB(data.data[0].maHeThong, oldPassword, newPassword, notification);
+            updatePasswordDB(getCookieIOT("systemID"), oldPassword, newPassword, notification);
         } else {
             notification.textContent = "Mật khẩu cũ sai.";
             notification.style.backgroundColor = "#f44336"; // Đỏ cho thông báo lỗi

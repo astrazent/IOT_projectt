@@ -3,7 +3,8 @@ const router = express.Router(); // dùng để định nghĩa route
 const { getIotHomePage, getPersonalPage, test, unlockByFinger, unlockByPassword, unlockHistory,
     getListFinger, getListOwner, addNewFinger, addNewFingerDB, deleteFinger, deleteFingerDB, 
     updatePassword, updatePasswordDB, getListUser, getSystemID, getToggleStatus, 
-    updateToggleStatus, updateEmailReceive, getListDiary, getListAction, getListSystem, updateIP, heartBeat } = require("../controllers/homeController");
+    updateToggleStatus, updateEmailReceive, getListDiary, getListAction, getListSystem, updateIP, heartBeat, 
+    checkOnline, getSystemActiveStatus, getListSystemInfo, addListSystemInfo, updateListSystemInfo } = require("../controllers/homeController");
 
 //Homepage
 router.get("/", getIotHomePage);
@@ -37,5 +38,11 @@ router.get("/api/getListAction", getListAction);
 router.get("/api/getListSystem", getListSystem);
 router.post("/api/updateIP", updateIP);
 router.get("/api/arduino/heartbeat", heartBeat);
+router.post("/api/checkOnline", checkOnline);
+router.post("/api/getSystemActiveStatus", getSystemActiveStatus);
+router.get("/api/getListSystemInfo", getListSystemInfo);
+router.post("/api/addListSystemInfo", addListSystemInfo);
+router.post("/api/updateListSystemInfo", updateListSystemInfo);
+
 
 module.exports = router; // export default

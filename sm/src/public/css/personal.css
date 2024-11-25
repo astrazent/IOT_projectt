@@ -130,7 +130,7 @@ body {
 
 /* CSS các nút bấm */
 .box-btn{
-    margin-top: 200px;
+    margin-top: 170px;
     display: grid;             /* Sử dụng Grid Layout */
     grid-template-columns: repeat(2, 1fr); /* 2 cột đều nhau */
     gap: 20px;                /* Khoảng cách giữa các nút */
@@ -508,4 +508,271 @@ tr:nth-child(even) {
     margin-bottom: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
+}
+/* Quản lý hệ thống cửa */
+.modal6 {
+    display: none; /* Ẩn modal ban đầu */
+    position: fixed; /* Giữ modal cố định */
+    z-index: 1001; /* Đảm bảo modal nằm trên các phần tử khác */
+    left: 0;
+    top: 0;
+    width: 100%; /* Chiều rộng toàn bộ màn hình */
+    height: 100%; /* Chiều cao toàn bộ màn hình */
+    background-color: rgba(0, 0, 0, 0.5); /* Màu nền tối với độ mờ */
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    align-items: center; /* Căn giữa theo chiều dọc */
+}
+.modal6 h4 {
+    margin-bottom: 20px;
+    font-size: 25px;
+    color: #333;
+}
+
+.modal-content6 {
+    background-color: white; /* Màu nền của thông báo */
+    padding: 20px;
+    border-radius: 5px;
+    position: relative; /* Để có thể sử dụng absolute cho nút đóng */
+}
+
+.close6 {
+    position: absolute; /* Đặt vị trí nút đóng */
+    top: 10px; /* Cách từ trên xuống */
+    right: 10px; /* Cách từ bên trái */
+    cursor: pointer; /* Thay đổi con trỏ khi hover */
+    font-size: 24px; /* Kích thước chữ cho nút đóng */
+}
+
+.tableContainer{
+    height: 500px;
+    overflow: auto;
+}
+
+#searchInput4 {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* ----------------------------------------------------------Kiểm soát trạng thái hệ thống----------------------------------------------- */
+
+/* Container chính */
+.custom-notification-container {
+    background: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 30px;
+    width: 600px; /* Tăng độ rộng container */
+    max-width: 90%;
+    position: absolute; /* Căn giữa với absolute */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
+
+/* Header */
+.custom-header {
+    display: flex;
+    justify-content: space-between;
+    text-align: center;
+    margin-bottom: 20px;
+}
+.close-button2{
+    font-size: 25px;
+    cursor: pointer;
+}
+
+.custom-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Email cố định */
+.custom-email-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.custom-email-label {
+    color: #555;
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.custom-email-value {
+    color: #333;
+    font-size: 16px;
+}
+
+.custom-change-email-btn {
+    background-color: #1890ff;
+    color: white;
+    border: none;
+    padding: 7px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.custom-change-email-btn:hover {
+    background-color: #40a9ff;
+}
+
+/* Form thay đổi email */
+.custom-email-input {
+    width: 93%;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.custom-form-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.custom-save-email-btn,
+.custom-cancel-email-btn {
+    background-color: #1890ff;
+    color: white;
+    border: none;
+    padding: 7px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.custom-save-email-btn:hover {
+    background-color: #40a9ff;
+}
+
+.custom-cancel-email-btn {
+    background-color: #ff4d4f;
+}
+
+.custom-cancel-email-btn:hover {
+    background-color: #ff7875;
+}
+
+/* Danh sách tên */
+.custom-names-list {
+    margin-top: 10px;
+}
+
+.custom-name-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.custom-name-item {
+    display: grid;
+    grid-template-columns: 1fr auto; /* Cột 1 chiếm hết chiều rộng, cột 2 tự điều chỉnh */
+    grid-template-rows: auto auto auto; /* Mỗi hàng có chiều cao tự động */
+    gap: 10px; /* Khoảng cách giữa các phần tử */
+    align-items: center; /* Căn giữa các phần tử theo chiều dọc */
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+}
+
+.custom-name-text {
+    grid-column: 1; /* Ở cột đầu tiên */
+}
+
+.custom-toggle-switch {
+    grid-column: 2; /* Ở cột thứ hai */
+}
+
+.custom-email-section {
+    grid-column: 1 / -1; /* Trải rộng cả 2 cột */
+}
+
+.custom-email-form {
+    grid-column: 1 / -1; /* Trải rộng cả 2 cột */
+    display: flex; /* Nội dung trong form có thể xếp ngang */
+    gap: 10px; /* Khoảng cách giữa các phần tử trong form */
+}
+
+.custom-name-item:hover {
+    background: #e6f7ff;
+}
+
+.custom-name-text {
+    font-size: 16px;
+    color: #333;
+}
+
+/* Toggle switch */
+.custom-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 25px;
+}
+
+.custom-toggle-checkbox {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.custom-toggle-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 25px;
+}
+
+.custom-toggle-slider:before {
+    position: absolute;
+    content: '';
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+.custom-toggle-checkbox:checked + .custom-toggle-slider {
+    background-color: #4caf50;
+}
+
+.custom-toggle-checkbox:checked + .custom-toggle-slider:before {
+    transform: translateX(25px);
+}
+
+/* Thông báo thành công */
+.notification-temp {
+    display: none;
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-size: 16px;
+    z-index: 1000;
 }
