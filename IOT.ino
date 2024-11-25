@@ -6,10 +6,9 @@
 #include <LiquidCrystal_I2C.h>
 #include <Keypad.h>
 #include <ArduinoJson.h>
-#include <HTTPClient.h>     // Thư viện để gửi HTTP requests
 
 // Cấu hình Wi-Fi
-const char* ssid = "iPhone 4 plus";
+const char* ssid = "iphone 4 plus";
 const char* password = "toilanguyen23";
 
 // Khởi tạo Web server
@@ -94,16 +93,7 @@ void setup() {
 
 //Hàm nhận heartbeat từ nodejs
 void handleHeartbeat() {
-  // Xử lý khi nhận heartbeat từ Node.js
-  if (server.hasArg("status")) {
-    String status = server.arg("status");
-    Serial.println("Heartbeat received: " + status);
-
-    // Phản hồi lại Node.js
     infoResponse(200, "success", "Device active!", 0);
-  } else {
-    infoResponse(400, "error", "Device offline.", 0);
-  }
 }
 
 //Hàm xử lý kết quả trả về cho client
@@ -508,29 +498,4 @@ void openDoor() {
 
 void loop() {
   server.handleClient(); // Xử lý yêu cầu từ Web Server
-  if (WiFi.status() == WL_CONNECTED) { // Kiểm tra kết nối WiFi
-    HTTPClient http;
-    
-    http.begin(serverUrl); // Đặt URL server
-    http.addHeader("Content-Type", "application/json"); // Header cho JSON
-
-    // Tạo dữ liệu heartbeat (ví dụ trạng thái thiết bị)
-    String jsonPayload = "{\"status\": \"active\", \"device\": \"Arduino\", \"timestamp\": " + String(millis()) + "}";
-
-    // Gửi POST request
-    int httpResponseCode = http.POST(jsonPayload);
-
-    if (httpResponseCode > 0) {
-      String response = http.getString(); // Đọc phản hồi từ server
-      Serial.println("Phản hồi từ server: " + response);
-    } else {
-      Serial.println("Gửi heartbeat thất bại: " + String(httpResponseCode));
-    }
-
-    http.end(); // Kết thúc HTTP request
-  } else {
-    Serial.println("WiFi không kết nối!");
-  }
-
-  delay(5000); // Gửi heartbeat mỗi 5 giây
 }
